@@ -10,89 +10,89 @@ pub struct EptFileNode {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct HubLatest {
-    version: String,
-    page: String,
+pub struct HubLatest {
+    pub version: String,
+    pub page: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct HubUpdate {
-    allow_normal_since: String,
-    force_update_until: String,
-    wide_gaps: Vec<String>,
+pub struct HubUpdate {
+    pub allow_normal_since: String,
+    pub force_update_until: String,
+    pub wide_gaps: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct HubNotice {
-    id: String,
-    level: String,
-    message: String,
-    description: String,
-    close_text: String,
-    lower_than: String,
-    repeat_after: u64,
+pub struct HubNotice {
+    pub id: String,
+    pub level: String,
+    pub message: String,
+    pub description: String,
+    pub close_text: String,
+    pub lower_than: String,
+    pub repeat_after: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct HubPackages {
-    update: String,
-    extended_update: String,
-    full: String,
+pub struct HubPackages {
+    pub update: String,
+    pub extended_update: String,
+    pub full: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct FileNode {
-    version: String,
-    file_name: String,
-    url: String,
+pub struct FileNode {
+    pub version: String,
+    pub file_name: String,
+    pub url: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct EdgelessVentoy {
-    version: String,
-    file_name: String,
-    url: String,
-    plugin_url: String,
+pub struct EdgelessVentoy {
+    pub version: String,
+    pub file_name: String,
+    pub url: String,
+    pub plugin_url: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct AlphaCover {
-    lower_than: String,
-    url: String,
+pub struct AlphaCover {
+    pub lower_than: String,
+    pub url: String,
 }
 
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EptResponse {
-    name: String,
-    description: String,
-    native_server: bool,
-    upload_bandwidth: u64,
-    protocol: String,
-    root: String,
-    sync_interval: u64,
-    official_maintained: bool,
-    services: Vec<String>,
+    pub name: String,
+    pub description: String,
+    pub native_server: bool,
+    pub upload_bandwidth: u64,
+    pub protocol: String,
+    pub root: String,
+    pub sync_interval: u64,
+    pub official_maintained: bool,
+    pub services: Vec<String>,
 
-    tree: HashMap<String, EptFileNode>,
+    pub tree: HashMap<String, Vec<EptFileNode>>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct HubResponse {
-    latest: HubLatest,
-    update: HubUpdate,
-    notice: HubNotice,
-    packages: HubPackages,
+    pub latest: HubLatest,
+    pub update: HubUpdate,
+    pub notice: HubNotice,
+    pub packages: HubPackages,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EdgelessResponse {
-    iso: FileNode,
-    ventoy: EdgelessVentoy,
+    pub iso: FileNode,
+    pub ventoy: EdgelessVentoy,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct AlphaResponse {
-    wim: FileNode,
-    cover: AlphaCover,
+    pub wim: FileNode,
+    pub cover: AlphaCover,
 }

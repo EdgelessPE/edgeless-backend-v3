@@ -2,49 +2,48 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Config {
-    mirror: Mirror,
-    position: Position,
-    url: Url,
-    config: SubConfig,
+    pub mirror: Mirror,
+    pub position: Position,
+    pub url: Url,
+    pub config: SubConfig,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct Mirror {
-    name: String,
-    description: String,
-    native_server: bool,
-    upload_bandwidth: u64,
-    sync_interval: u64,
-    official_maintained: bool,
-    services: Vec<String>,
+pub struct Mirror {
+    pub name: String,
+    pub description: String,
+    pub native_server: bool,
+    pub upload_bandwidth: u64,
+    pub sync_interval: u64,
+    pub official_maintained: bool,
+    pub services: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct Position {
-    plugins: String,
-    iso: String,
-    alpha: String,
-    alpha_cover: String,
-    ventoy: String,
-    hub: String,
+pub struct Position {
+    pub plugins: String,
+    pub iso: String,
+    pub alpha: String,
+    pub ventoy: String,
+    pub hub: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct Url {
-    domain: String,
+pub struct Url {
+    pub domain: String,
 
-    ventoy_plugin: String,
+    pub ventoy_plugin: String,
 
-    plugins: String,
-    iso: String,
-    alpha: String,
-    alpha_cover: String,
-    ventoy: String,
-    hub: String,
+    pub plugins: String,
+    pub iso: String,
+    pub alpha: String,
+    pub alpha_cover: String,
+    pub ventoy: String,
+    pub hub: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct SubConfig {
-    hub: String,
-    notice: String,
+pub struct SubConfig {
+    pub hub: String,
+    pub notice: String,
 }

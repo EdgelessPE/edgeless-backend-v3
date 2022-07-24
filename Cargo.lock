@@ -400,6 +400,7 @@ name = "ept-rearend-v3"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "regex",
  "serde",
  "serde_json",
  "sha256",

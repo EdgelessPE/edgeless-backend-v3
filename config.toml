@@ -8,26 +8,28 @@ official_maintained = true
 services = ["plugins", "iso", "alpha", "ventoy", "hub"]
 
 [position]
-plugins = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\插件包'
-iso = 'D:\Download\HubCache\Burn'
-alpha = ''
-alpha_cover = ''
+#plugins = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\插件包'
+plugins = 'D:\Desktop\Projects\EdgelessPE\ept-rearend-v3\test\插件包'
+iso = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket'
+alpha = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Alpha'
 ventoy = 'D:\Download\HubCache\Burn'
-hub = ''
+hub = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub'
 
 [url]
 domain = 'https://pineapple.edgeless.top/'
 
-ventoy_plugin = ''
+ventoy_plugin = 'disk/Socket/Hub/ventoy_wimboot.img'
 
-plugins = ''
-iso = ''
-alpha = ''
-alpha_cover = ''
-ventoy = ''
-hub = ''
+plugins = 'disk/插件包/'
+iso = 'disk/Socket/'
+alpha = 'disk/Socket/Alpha/'
+alpha_cover = 'disk/Socket/Alpha/Edgeless.7z'
+ventoy = 'disk/Socket/Ventoy/'
+hub = 'disk/Socket/Hub/'
 
 
+# 外部配置应是一个json文件，会被直接呈现到api接口相应位置
 [config]
-hub = ''
-notice = ''
+hub = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub\Update\update.json'
+notice = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub\notice.json'
+alpha_cover = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Alpha\alpha.json'

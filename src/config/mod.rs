@@ -4,9 +4,7 @@ use std::fs::File;
 use std::io;
 use std::io::Read;
 use std::path::Path;
-use super::config;
-use config_class::Config;
-use toml::Value;
+pub use config_class::Config;
 
 const CONFIG_FILE: &str = "./config.toml";
 

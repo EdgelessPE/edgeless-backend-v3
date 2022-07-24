@@ -2,13 +2,17 @@ mod scanner;
 mod class;
 mod hash;
 mod config;
+mod utils;
+mod collector;
 
 use actix_web::{get, App, HttpServer, Responder, HttpResponse};
+use crate::config::read_config;
 
 #[get("/v3/ept")]
 async fn ept() -> impl Responder {
-    let dir_res = config::read_config();
-    HttpResponse::Ok().json(dir_res.unwrap())
+    let config = read_config().unwrap();
+    let dir_res = collector::ept(&config).unwrap();
+    HttpResponse::Ok().json(dir_res)
 }
 
 #[actix_web::main] // or #[tokio::main]
