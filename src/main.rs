@@ -1,11 +1,12 @@
 mod scanner;
 mod class;
+mod hash;
 
-use actix_web::{get, web, App, HttpServer, Responder, HttpResponse};
+use actix_web::{get, App, HttpServer, Responder, HttpResponse};
 
 #[get("/v3/ept")]
 async fn ept() -> impl Responder {
-    let dir_res = scanner::scan_plugins(String::from("I:/Edgeless/OneDrive - 洛阳科技职业学院/插件包"));
+    let dir_res = scanner::scan_plugins(String::from("D:/Download/HubCache/Burn"));
     HttpResponse::Ok().json(dir_res.unwrap())
 }
 

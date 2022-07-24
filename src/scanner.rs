@@ -2,6 +2,7 @@ use std::{fs, io, path::Path};
 use std::collections::HashMap;
 use std::time::SystemTime;
 use crate::class::EptFileNode;
+use crate::hash::get_hash;
 
 #[derive(PartialEq)]
 pub enum FileType {
@@ -28,10 +29,10 @@ fn get_file_node(sub_path: String, name: String) -> Result<EptFileNode, io::Erro
     let meta = fs::metadata(p)?;
 
     Ok(EptFileNode {
+        hash: get_hash(sub_path + "/" + &name)?,
         name,
         size: meta.len(),
         timestamp: meta.modified().unwrap().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs(),
-        hash: String::from("114514"),
     })
 }
 
