@@ -30,7 +30,7 @@ struct HubNotice {
     description: String,
     close_text: String,
     lower_than: String,
-    repeat_after: u8,
+    repeat_after: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -65,9 +65,14 @@ struct AlphaCover {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EptResponse {
     name: String,
+    description: String,
+    native_server: bool,
+    upload_bandwidth: u64,
     protocol: String,
     root: String,
     sync_interval: i8,
+    official_maintained: bool,
+
     tree: HashMap<String, EptFileNode>,
 }
 

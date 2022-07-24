@@ -1,0 +1,32 @@
+[mirror]
+name = '菠萝云'
+description = 'Edgeless 官方主站点'
+native_server = true
+upload_bandwidth = 1000
+sync_interval = 0
+official_maintained = true
+
+[position]
+plugins = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\插件包'
+iso = 'D:\Download\HubCache\Burn'
+alpha = ''
+alpha_cover = ''
+ventoy = 'D:\Download\HubCache\Burn'
+hub = ''
+
+[url]
+domain = 'https://pineapple.edgeless.top/'
+
+ventoy_plugin = ''
+
+plugins = ''
+iso = ''
+alpha = ''
+alpha_cover = ''
+ventoy = ''
+hub = ''
+
+
+[config]
+hub = ''
+notice = ''
