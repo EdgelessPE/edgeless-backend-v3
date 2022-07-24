@@ -16,6 +16,7 @@ struct Mirror {
     upload_bandwidth: u64,
     sync_interval: u64,
     official_maintained: bool,
+    services: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

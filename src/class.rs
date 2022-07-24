@@ -70,8 +70,9 @@ pub struct EptResponse {
     upload_bandwidth: u64,
     protocol: String,
     root: String,
-    sync_interval: i8,
+    sync_interval: u64,
     official_maintained: bool,
+    services: Vec<String>,
 
     tree: HashMap<String, EptFileNode>,
 }

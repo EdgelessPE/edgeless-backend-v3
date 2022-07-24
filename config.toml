@@ -5,6 +5,7 @@ native_server = true
 upload_bandwidth = 1000
 sync_interval = 0
 official_maintained = true
+services = ["plugins", "iso", "alpha", "ventoy", "hub"]
 
 [position]
 plugins = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\插件包'
