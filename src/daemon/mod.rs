@@ -4,23 +4,30 @@ use std::time::SystemTime;
 use std::path::Path;
 
 use crate::class::EptResponse;
+use crate::scanner::Scanner;
 
+struct LazyDeleteNode {
+    path:String,
+    key:String
+}
 struct Daemon {
-    timestamp_recent_finish: SystemTime,
-    status_running: bool,
-    list_lazy_delete: Vec<String>,
+    timestamp_recent_finish: SystemTime, //上次扫描结束时的时间戳
+    status_running: bool, //是否有一个扫描任务正在进行中
+    list_lazy_delete: Vec<LazyDeleteNode>, //懒删除文件列表
 
-    sender: Sender<EptResponse>,
-    dir_packages:String
+    sender: Sender<EptResponse>, //结果发送channel
+    scanner:Scanner, //扫描器实例
+    dir_packages:String, //插件包所在目录
 }
 impl Daemon {
-    pub fn new(sender: Sender<EptResponse>,dir_packages:String) -> Self {
+    pub fn new(sender: Sender<EptResponse>,dir_packages:String,scanner:Scanner) -> Self {
         Daemon {
             timestamp_recent_finish: SystemTime::UNIX_EPOCH,
             status_running: false,
             list_lazy_delete: vec![],
             sender,
             dir_packages,
+            scanner,
         }
     }
 
@@ -40,19 +47,12 @@ impl Daemon {
         println!("Info:Start updating");
 
         //懒删除
-        for file in &self.list_lazy_delete {
-            let file_path=Path::new(&self.dir_packages).join(&file);
-            if file_path.exists(){
-                if let Err(err)= fs::remove_file(&file_path){
-                    println!("Fatal:Can't delete {}, io error : {}",file_path.to_string_lossy(),err);
-                }
-            }else{
-                println!("Warning:Can't delete {}, file not exist",file_path.to_string_lossy());
-            }
+        for node in &self.list_lazy_delete {
+            self.scanner.delete_file(node.path.to_owned(), node.key.to_owned())
         }
 
         //生成
-        
+
 
         Ok(())
     }
