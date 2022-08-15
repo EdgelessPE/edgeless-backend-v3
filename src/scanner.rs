@@ -1,59 +1,16 @@
+use std::ops::Add;
 use std::{fs, io, path::Path};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::time::SystemTime;
 use regex::Regex;
 use crate::class::EptFileNode;
-use crate::hash::get_hash;
+use crate::hash_service::{ HashService};
 
 #[derive(PartialEq)]
 pub enum FileType {
     Dir,
     File,
-}
-
-fn read_dir(path: String, filter: FileType) -> Result<Vec<String>, io::Error> {
-    let category_dir = fs::read_dir(path)?;
-
-    let mut collection = Vec::new();
-    for entry_res in category_dir {
-        let entry = entry_res?;
-        if (filter == FileType::Dir && entry.file_type().unwrap().is_dir()) || (filter == FileType::File && entry.file_type().unwrap().is_file()) {
-            collection.push(String::from(entry.file_name().to_string_lossy()));
-        }
-    }
-
-    Ok(collection)
-}
-
-fn get_file_node(sub_path: String, name: String) -> Result<EptFileNode, io::Error> {
-    let p = Path::new(&sub_path).join(name.clone());
-    let meta = fs::metadata(p)?;
-
-    Ok(EptFileNode {
-        hash: get_hash(sub_path + "/" + &name)?,
-        name,
-        size: meta.len(),
-        timestamp: meta.modified().unwrap().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs(),
-    })
-}
-
-pub fn scan_plugins(path: String) -> Result<HashMap<String, Vec<EptFileNode>>, io::Error> {
-    let mut map: HashMap<String, Vec<EptFileNode>> = HashMap::new();
-    //读取分类目录
-    let categories = read_dir(path.clone(), FileType::Dir)?;
-    //读取一层子目录
-    for category in categories {
-        let sub_path = String::from(Path::new(&path.clone()).join(category.clone()).to_string_lossy());
-        let file_list = read_dir(sub_path.clone(), FileType::File)?;
-        let mut collection = Vec::new();
-        for name in file_list {
-            collection.push(get_file_node(sub_path.clone(), name.to_owned()).unwrap());
-        }
-        map.insert(category, collection);
-    }
-
-    Ok(map)
 }
 
 //文件选择器函数
@@ -99,4 +56,66 @@ pub fn file_selector(path: String, exp: String) -> Result<String, String> {
     } else {
         Err(String::from("file_selector:Matched nothing when looking into ") + &path + " for " + &exp)
     };
+}
+
+fn get_key(file_name: String, timestamp: u64) -> String {
+    file_name.add(&timestamp.to_string())
+}
+
+pub struct Scanner {
+    hash_service:HashService
+}
+
+impl Scanner {
+    pub fn new(hash_service:HashService)->Self{
+        Scanner { hash_service }
+    }
+
+    fn read_dir(&mut self,path: String, filter: FileType) -> Result<Vec<String>, io::Error> {
+        let category_dir = fs::read_dir(path)?;
+    
+        let mut collection = Vec::new();
+        for entry_res in category_dir {
+            let entry = entry_res?;
+            if (filter == FileType::Dir && entry.file_type().unwrap().is_dir()) || (filter == FileType::File && entry.file_type().unwrap().is_file()) {
+                collection.push(String::from(entry.file_name().to_string_lossy()));
+            }
+        }
+    
+        Ok(collection)
+    }
+    
+    fn get_file_node(&mut self,sub_path: String, name: String) -> Result<EptFileNode, io::Error> {
+        let file_path=sub_path.add(&name);
+        let meta = fs::metadata(Path::new(&file_path))?;
+        let timestamp=meta.modified().unwrap().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
+    
+        Ok(EptFileNode {
+            hash: self.hash_service.query(
+                file_path,
+                 get_key(name.clone(), timestamp)
+                )?,
+            name,
+            size: meta.len(),
+            timestamp,
+        })
+    }
+    
+    pub fn scan_packages(&mut self,path: String) -> Result<HashMap<String, Vec<EptFileNode>>, io::Error> {
+        let mut map: HashMap<String, Vec<EptFileNode>> = HashMap::new();
+        //读取分类目录
+        let categories = self.read_dir(path.clone(), FileType::Dir)?;
+        //读取一层子目录
+        for category in categories {
+            let sub_path = String::from(Path::new(&path.clone()).join(category.clone()).to_string_lossy());
+            let file_list = self.read_dir(sub_path.clone(), FileType::File)?;
+            let mut collection = Vec::new();
+            for name in file_list {
+                collection.push(self.get_file_node(sub_path.clone(), name.to_owned()).unwrap());
+            }
+            map.insert(category, collection);
+        }
+    
+        Ok(map)
+    }
 }

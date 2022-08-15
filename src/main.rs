@@ -1,9 +1,10 @@
 mod scanner;
 mod class;
-mod hash;
+mod hash_service;
 mod config;
 mod utils;
 mod collector;
+mod daemon;
 
 use actix_web::{get, App, HttpServer, Responder, HttpResponse};
 use crate::config::read_config;
