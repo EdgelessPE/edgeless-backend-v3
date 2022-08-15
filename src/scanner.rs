@@ -118,4 +118,16 @@ impl Scanner {
     
         Ok(map)
     }
+
+    pub fn delete_file(&mut self,path:String,key:String){
+        let file_path=Path::new(&path);
+        if file_path.exists(){
+            if let Err(err)= fs::remove_file(&file_path){
+                println!("Fatal:Can't delete {}, io error : {}",file_path.to_string_lossy(),err);
+            }
+        }else{
+            println!("Warning:Can't delete {}, file not exist",file_path.to_string_lossy());
+        }
+        self.hash_service.delete_cache(key);
+    }
 }
