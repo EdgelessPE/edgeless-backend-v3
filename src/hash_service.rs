@@ -19,7 +19,7 @@ impl HashService {
             .to_owned())
     }
 
-    pub fn delete_cache(&mut self,key: String){
+    pub fn delete_cache(&mut self, key: String) {
         self.map.remove(&key);
     }
 }

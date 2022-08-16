@@ -13,7 +13,11 @@ pub fn version_extractor(name: String, index: usize) -> Result<String, String> {
     result.push(ext_name);
 
     if index > result.len() {
-        Err(format!("version_extractor:Index out of range when split {},got {}", name, index.to_string()))
+        Err(format!(
+            "version_extractor:Index out of range when split {},got {}",
+            name,
+            index.to_string()
+        ))
     } else {
         Ok(result[index].to_string())
     }

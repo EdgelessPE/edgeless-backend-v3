@@ -1,33 +1,39 @@
+use crate::class::{EptFileNode, EptResponse};
+use crate::config::Config;
 use std::collections::HashMap;
 use std::io;
 use std::ops::Add;
 use std::sync::mpsc::Receiver;
-use crate::config::Config;
-use crate::class::{EptResponse, EptFileNode};
 
 const PROTOCOL: &str = "3.0.0";
 
 pub struct ResponseCollector {
-    packages_receiver:Receiver<HashMap<String, Vec<EptFileNode>>>,
-    packages_tree:HashMap<String, Vec<EptFileNode>>,
-    config:Config,
+    packages_receiver: Receiver<HashMap<String, Vec<EptFileNode>>>,
+    packages_tree: HashMap<String, Vec<EptFileNode>>,
+    config: Config,
 }
 
 impl ResponseCollector {
-    pub fn new(packages_receiver:Receiver<HashMap<String, Vec<EptFileNode>>>,config:Config)->Self {
-        ResponseCollector { packages_receiver, packages_tree: HashMap::new(),config }
+    pub fn new(
+        packages_receiver: Receiver<HashMap<String, Vec<EptFileNode>>>,
+        config: Config,
+    ) -> Self {
+        ResponseCollector {
+            packages_receiver,
+            packages_tree: HashMap::new(),
+            config,
+        }
     }
-
 
     pub fn ept(&mut self) -> io::Result<EptResponse> {
         let c = self.config.to_owned();
-        
+
         //尝试获取通道中的内容
         loop {
-            let try_receive=self.packages_receiver.try_recv();
+            let try_receive = self.packages_receiver.try_recv();
             if let Ok(val) = try_receive {
-                self.packages_tree=val;
-            }else{
+                self.packages_tree = val;
+            } else {
                 break;
             }
         }
@@ -42,9 +48,7 @@ impl ResponseCollector {
             sync_interval: c.mirror.sync_interval,
             official_maintained: c.mirror.official_maintained,
             services: c.mirror.services,
-            tree:self.packages_tree.clone(),
+            tree: self.packages_tree.clone(),
         })
     }
-
-
 }
