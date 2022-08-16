@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EptFileNode {
     pub name: String,
     pub size: u64,
@@ -97,6 +97,7 @@ pub struct AlphaResponse {
     pub cover: AlphaCover,
 }
 
+#[derive(Serialize, Deserialize, Clone)]
 pub struct LazyDeleteNode {
     pub path:String,
     pub key:String

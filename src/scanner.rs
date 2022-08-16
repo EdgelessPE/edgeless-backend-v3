@@ -19,19 +19,6 @@ fn get_key(file_name: String, timestamp: u64) -> String {
     file_name.add(&timestamp.to_string())
 }
 
-
-/// 版本号比较器
-/// 
-///  # 测试用例1
-/// 
-/// ```
-/// let test_array=vec![("2.3.3","2.2.4",Ordering::Greater)]
-/// for node in test_array {
-///     let s1=node.0.split(".").map(|s| s.parse::<u32>().unwrap()).collect(),
-///         s2=node.1.split(".").map(|s| s.parse::<u32>().unwrap()).collect();
-///     assert_eq!(crate::sacnner::version_cmp(s1,s2,node.2));
-/// }
-/// ```
 pub fn version_cmp(a: &Vec<u32>, b: &Vec<u32>) -> Ordering {
     for i in 0..cmp::min(a.len(), b.len()) {
         if a[i] < b[i] {
@@ -46,9 +33,13 @@ pub fn version_cmp(a: &Vec<u32>, b: &Vec<u32>) -> Ordering {
         //找出较长的那一个
         let t = if a.len() < b.len() { b } else { a };
         //读取剩余位
-        for i in cmp::min(a.len(),b.len())..cmp::max(a.len(),b.len()) {
-            if t[i]!=0 {
-                return if a.len() < b.len() {Ordering::Less} else {Ordering::Greater};
+        for i in cmp::min(a.len(), b.len())..cmp::max(a.len(), b.len()) {
+            if t[i] != 0 {
+                return if a.len() < b.len() {
+                    Ordering::Less
+                } else {
+                    Ordering::Greater
+                };
             }
         }
     }
@@ -56,21 +47,49 @@ pub fn version_cmp(a: &Vec<u32>, b: &Vec<u32>) -> Ordering {
     Ordering::Equal
 }
 
+//获取元信息，返回元组（时间戳，大小）
+fn get_meta(path: String) -> io::Result<(u64, u64)> {
+    let file_path = Path::new(&path);
+    let meta = fs::metadata(file_path)?;
+    let timestamp = meta
+        .modified()
+        .unwrap()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+
+    Ok((timestamp, meta.len()))
+}
+
 //选取多个插件包中的最高版本并淘汰其他
-fn dulp_selector(names: Vec<String>) {
+pub fn dulp_selector(names: Vec<String>) -> (String, Vec<String>) {
     //生成带版本号的输入数组
     let mut names_with_version: Vec<(String, Vec<u32>)> = names
         .into_iter()
         .map(|name| {
             let s: Vec<&str> = (&name).split("_").collect();
-            let version: Vec<u32> = s[1].split(".").map(|s| s.parse::<u32>().unwrap()).collect();
+            let version: Vec<u32> = s[1]
+                .split(".")
+                .map(|s| {
+                    let try_parse = s.parse::<u32>();
+                    if let Err(_) = try_parse {
+                        println!("Warning:Can't parse version for {}", name);
+                        0
+                    } else {
+                        try_parse.unwrap()
+                    }
+                })
+                .collect();
             (name, version)
         })
         .collect();
-    //按照版本号降序排列
-    names_with_version.sort_by(|a, b| {
-        version_cmp(&a.1,& b.1)
-    })
+    //按照版本号升序排列
+    names_with_version.sort_by(|a, b| version_cmp(&a.1, &b.1));
+    let mut sorted: Vec<String> = names_with_version.into_iter().map(|node| node.0).collect();
+    //弹出
+    let reserve = sorted.pop().unwrap();
+    //返回
+    (reserve, sorted)
 }
 
 pub struct Scanner {
@@ -100,20 +119,14 @@ impl Scanner {
 
     fn get_file_node(&mut self, sub_path: String, name: String) -> Result<EptFileNode, io::Error> {
         let file_path = sub_path.add(&name);
-        let meta = fs::metadata(Path::new(&file_path))?;
-        let timestamp = meta
-            .modified()
-            .unwrap()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+        let (timestamp, size) = get_meta(file_path.clone())?;
 
         Ok(EptFileNode {
             hash: self
                 .hash_service
                 .query(file_path, get_key(name.clone(), timestamp))?,
             name,
-            size: meta.len(),
+            size,
             timestamp,
         })
     }
@@ -139,19 +152,57 @@ impl Scanner {
             let file_list = self.read_dir(sub_path.clone(), FileType::File)?;
 
             //插件包去重
-            let mut dulpMap: HashMap<String, Vec<String>> = HashMap::new();
+            let mut dulp_map: HashMap<String, Vec<String>> = HashMap::new();
             let mut collection = Vec::new();
 
             for name in file_list {
-                // collection.push(self.get_file_node(sub_path.clone(), name.to_owned()).unwrap());
                 let s: Vec<&str> = (&name).split("_").collect();
                 let package_name = s[0].to_string();
-                dulpMap.entry(package_name).or_insert(vec![]).push(name);
+                dulp_map.entry(package_name).or_insert(vec![]).push(name);
             }
 
             //迭代map生成collection
+            for (_,file_names) in dulp_map.into_iter() {
+                if file_names.len() == 1 {
+                    collection.push(file_names[0].clone());
+                } else {
+                    let (reserve, delete_list_string) = dulp_selector(file_names);
+                    collection.push(reserve);
+                    let delete_list: Vec<LazyDeleteNode> = delete_list_string
+                        .into_iter()
+                        .map(|file| {
+                            let file_path =
+                                String::from(Path::new(&sub_path).join(&file).to_string_lossy());
+                            let (timestamp, _) = get_meta(file_path.clone()).unwrap();
+                            LazyDeleteNode {
+                                path: file_path,
+                                key: get_key(file, timestamp),
+                            }
+                        })
+                        .collect();
+                    lazy_delete = [lazy_delete, delete_list].concat();
+                }
+            }
 
-            result.insert(category, collection);
+            //由字符串collection生成文件节点collection
+            let file_node_collection:Vec<EptFileNode>=collection
+            .into_iter()
+            .map(|file|{
+                let file_path=String::from(Path::new(&sub_path).join(&file).to_string_lossy());
+                let (timestamp,size)=get_meta(file_path.clone()).unwrap();
+                let key=get_key(file.clone(), timestamp);
+                let hash=self.hash_service.query(file_path, key).unwrap();
+
+                EptFileNode{
+                    name:file,
+                    size,
+                    timestamp,
+                    hash
+                }
+            })
+            .collect();
+
+            result.insert(category, file_node_collection);
         }
 
         Ok(result)
