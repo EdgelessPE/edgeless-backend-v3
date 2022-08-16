@@ -22,9 +22,11 @@ pub fn test_version_cmp(){
  }
 }
 
-// #[test]
+#[test]
 pub fn test_scanner() {
-    let hash_service=HashService::new(HashMap::new());
+    let mut map=HashMap::new();
+    map.insert(String::from("7-Zip美化版_21.7.0.0_Horatio Shaw.7z1643440187"), String::from("114514"));
+    let hash_service=HashService::new(map);
     let mut scanner=scanner::Scanner::new(hash_service);
     let res=scanner.scan_packages(String::from("./test/packages"));
     println!("{:?}",res);
