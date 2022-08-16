@@ -1,5 +1,5 @@
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EptFileNode {
@@ -9,20 +9,20 @@ pub struct EptFileNode {
     pub hash: String, //SHA256
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct HubLatest {
     pub version: String,
     pub page: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct HubUpdate {
     pub allow_normal_since: String,
     pub force_update_until: String,
     pub wide_gaps: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct HubNotice {
     pub id: String,
     pub level: String,
@@ -33,21 +33,21 @@ pub struct HubNotice {
     pub repeat_after: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct HubPackages {
     pub update: String,
     pub extended_update: String,
     pub full: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FileNode {
     pub version: String,
     pub file_name: String,
     pub url: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EdgelessVentoy {
     pub version: String,
     pub file_name: String,
@@ -55,14 +55,13 @@ pub struct EdgelessVentoy {
     pub plugin_url: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct AlphaCover {
     pub lower_than: String,
     pub url: String,
 }
 
-
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EptResponse {
     pub name: String,
     pub description: String,
@@ -77,7 +76,7 @@ pub struct EptResponse {
     pub tree: HashMap<String, Vec<EptFileNode>>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct HubResponse {
     pub latest: HubLatest,
     pub update: HubUpdate,
@@ -85,20 +84,20 @@ pub struct HubResponse {
     pub packages: HubPackages,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EdgelessResponse {
     pub iso: FileNode,
     pub ventoy: EdgelessVentoy,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct AlphaResponse {
     pub wim: FileNode,
     pub cover: AlphaCover,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct LazyDeleteNode {
-    pub path:String,
-    pub key:String
+    pub path: String,
+    pub key: String,
 }

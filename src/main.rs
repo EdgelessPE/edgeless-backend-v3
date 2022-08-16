@@ -3,7 +3,7 @@ mod class;
 mod hash_service;
 mod config;
 mod utils;
-mod collector;
+mod response_collector;
 mod daemon;
 #[cfg(test)]
 mod test;
@@ -14,7 +14,7 @@ use crate::config::read_config;
 #[get("/v3/ept")]
 async fn ept() -> impl Responder {
     let config = read_config().unwrap();
-    let dir_res = collector::ept(&config).unwrap();
+    let dir_res = response_collector::ept(&config).unwrap();
     HttpResponse::Ok().json(dir_res)
 }
 

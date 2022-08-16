@@ -1,11 +1,9 @@
 use crate::class::{EptFileNode, LazyDeleteNode};
 use crate::hash_service::HashService;
-use regex::Regex;
 use std::cmp::{self, Ordering};
 use std::collections::HashMap;
 use std::ops::Add;
 use std::time::SystemTime;
-use std::u64::MIN;
 use std::{fs, io, path::Path};
 
 #[derive(PartialEq)]
@@ -134,7 +132,7 @@ impl Scanner {
     pub fn scan_packages(
         &mut self,
         path: String,
-    ) -> Result<HashMap<String, Vec<EptFileNode>>, io::Error> {
+    ) -> Result<(HashMap<String, Vec<EptFileNode>>, Vec<LazyDeleteNode>), io::Error> {
         let mut result: HashMap<String, Vec<EptFileNode>> = HashMap::new();
         let mut lazy_delete: Vec<LazyDeleteNode> = vec![];
 
@@ -162,7 +160,7 @@ impl Scanner {
             }
 
             //迭代map生成collection
-            for (_,file_names) in dulp_map.into_iter() {
+            for (_, file_names) in dulp_map.into_iter() {
                 if file_names.len() == 1 {
                     collection.push(file_names[0].clone());
                 } else {
@@ -185,27 +183,28 @@ impl Scanner {
             }
 
             //由字符串collection生成文件节点collection
-            let file_node_collection:Vec<EptFileNode>=collection
-            .into_iter()
-            .map(|file|{
-                let file_path=String::from(Path::new(&sub_path).join(&file).to_string_lossy());
-                let (timestamp,size)=get_meta(file_path.clone()).unwrap();
-                let key=get_key(file.clone(), timestamp);
-                let hash=self.hash_service.query(file_path, key).unwrap();
+            let file_node_collection: Vec<EptFileNode> = collection
+                .into_iter()
+                .map(|file| {
+                    let file_path =
+                        String::from(Path::new(&sub_path).join(&file).to_string_lossy());
+                    let (timestamp, size) = get_meta(file_path.clone()).unwrap();
+                    let key = get_key(file.clone(), timestamp);
+                    let hash = self.hash_service.query(file_path, key).unwrap();
 
-                EptFileNode{
-                    name:file,
-                    size,
-                    timestamp,
-                    hash
-                }
-            })
-            .collect();
+                    EptFileNode {
+                        name: file,
+                        size,
+                        timestamp,
+                        hash,
+                    }
+                })
+                .collect();
 
             result.insert(category, file_node_collection);
         }
 
-        Ok(result)
+        Ok((result, lazy_delete))
     }
 
     pub fn delete_file(&mut self, path: String, key: String) {
