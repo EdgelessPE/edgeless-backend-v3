@@ -3,13 +3,10 @@ use std::sync::mpsc::Sender;
 use std::time::SystemTime;
 use std::path::Path;
 
-use crate::class::EptResponse;
+use crate::class::{EptResponse, LazyDeleteNode};
 use crate::scanner::Scanner;
 
-struct LazyDeleteNode {
-    path:String,
-    key:String
-}
+
 struct Daemon {
     timestamp_recent_finish: SystemTime, //上次扫描结束时的时间戳
     status_running: bool, //是否有一个扫描任务正在进行中

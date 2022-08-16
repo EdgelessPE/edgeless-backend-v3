@@ -5,6 +5,8 @@ mod config;
 mod utils;
 mod collector;
 mod daemon;
+#[cfg(test)]
+mod test;
 
 use actix_web::{get, App, HttpServer, Responder, HttpResponse};
 use crate::config::read_config;

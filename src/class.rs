@@ -96,3 +96,8 @@ pub struct AlphaResponse {
     pub wim: FileNode,
     pub cover: AlphaCover,
 }
+
+pub struct LazyDeleteNode {
+    pub path:String,
+    pub key:String
+}
