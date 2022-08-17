@@ -3,9 +3,9 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::time::SystemTime;
 
 use crate::class::{EptFileNode, LazyDeleteNode};
+use crate::constant::{CMD_REQUEST, UPDATE_INTERVAL};
 use crate::hash_service::HashService;
 use crate::scanner::Scanner;
-use crate::constant::{CMD_REQUEST, UPDATE_INTERVAL};
 
 pub struct Daemon {
     timestamp_recent_finish: SystemTime,   //上次扫描结束时的时间戳
@@ -39,7 +39,7 @@ impl Daemon {
 
     pub fn serve(&mut self) {
         let cmd_request = String::from(CMD_REQUEST);
-        while let Ok(cmd)=self.commander.recv() {
+        while let Ok(cmd) = self.commander.recv() {
             println!("Daemon Info:Get cmd : {}", &cmd);
             if cmd == cmd_request {
                 self.request();

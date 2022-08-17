@@ -18,7 +18,7 @@ use response_collector::ResponseCollector;
 
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    let cfg = crate::config::read_config().unwrap();
+    let cfg = read_config().unwrap();
 
     let hash_map = HashMap::new();
 
@@ -39,20 +39,17 @@ async fn main() -> std::io::Result<()> {
         daemon.serve();
     });
 
-    fn get_ept_response(response_collector:&mut ResponseCollector)->impl Responder {
-        let res=response_collector.ept();
-        if let Err(e)=res {
+    fn get_ept_response(response_collector: &mut ResponseCollector) -> impl Responder {
+        let res = response_collector.ept();
+        if let Err(e) = res {
             HttpResponse::InternalServerError().body("Can't collect ept response")
-        }else {
+        } else {
             HttpResponse::Ok().json(res.unwrap())
         }
     }
 
     HttpServer::new(|| {
-        App::new()
-        .route("/v3/ept", web::get().to( || {
-            HttpResponse::Ok().body("body")
-        }))
+        App::new().route("/v3/ept", web::get().to(|| HttpResponse::Ok().body("body")))
         // .service(ept)
     })
     .bind(("127.0.0.1", 8080))?

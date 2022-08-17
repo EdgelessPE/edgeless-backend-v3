@@ -1,11 +1,11 @@
 mod config_class;
 
+use crate::constant::CONFIG_FILE;
 pub use config_class::Config;
 use std::fs::File;
 use std::io;
 use std::io::Read;
 use std::path::Path;
-use crate::constant::CONFIG_FILE;
 
 pub fn read_config() -> Result<Config, io::Error> {
     let config_path = Path::new(CONFIG_FILE);

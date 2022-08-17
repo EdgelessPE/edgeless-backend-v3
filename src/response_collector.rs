@@ -5,7 +5,7 @@ use std::io;
 use std::ops::Add;
 use std::sync::mpsc::{Receiver, Sender};
 
-use crate::constant::{PROTOCOL,CMD_REQUEST};
+use crate::constant::{CMD_REQUEST, PROTOCOL};
 
 pub struct ResponseCollector {
     packages_receiver: Receiver<HashMap<String, Vec<EptFileNode>>>,
