@@ -10,7 +10,7 @@ mod utils;
 #[cfg(test)]
 mod test;
 
-use std::{collections::HashMap, sync::mpsc::channel, thread::spawn};
+use std::{ sync::mpsc::channel, thread::spawn};
 
 use crate::config::read_config;
 use actix_web::{web, App, HttpResponse, HttpServer};
@@ -41,14 +41,11 @@ async fn handler() -> HttpResponse {
 async fn main() -> std::io::Result<()> {
     let cfg = read_config().unwrap();
 
-    let hash_map = HashMap::new();
-
     let (result_sender, result_receiver) = channel();
     let (cmd_sender, cmd_receiver) = channel();
     let mut daemon = daemon::Daemon::new(
         cmd_receiver,
         result_sender,
-        hash_map,
         cfg.position.plugins.clone(),
     );
 
@@ -57,7 +54,7 @@ async fn main() -> std::io::Result<()> {
 
     //启动 daemon 服务
     spawn(move || {
-        daemon.request();
+        daemon.request(true);
         daemon.serve();
     });
 

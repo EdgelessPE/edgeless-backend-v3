@@ -21,10 +21,9 @@ impl Daemon {
     pub fn new(
         commander: Receiver<String>,
         result_sender: Sender<HashMap<String, Vec<EptFileNode>>>,
-        hash_map: HashMap<String, String>,
         dir_packages: String,
     ) -> Self {
-        let hash_service = HashService::new(hash_map);
+        let hash_service = HashService::new();
         let scanner = Scanner::new(hash_service);
         Daemon {
             timestamp_recent_finish: SystemTime::UNIX_EPOCH,
@@ -42,13 +41,13 @@ impl Daemon {
         while let Ok(cmd) = self.commander.recv() {
             println!("Daemon Info:Get cmd : {}", &cmd);
             if cmd == cmd_request {
-                self.request();
+                self.request(false);
             }
         }
     }
 
-    //由外部调用，要求安排一次扫描更新
-    pub fn request(&mut self) {
+    //请求安排一次扫描更新
+    pub fn request(&mut self,clear_hash_map:bool) {
         //判断是否使能扫描
         if !self.status_running
             && SystemTime::now()
@@ -58,7 +57,7 @@ impl Daemon {
                 > UPDATE_INTERVAL
         {
             self.status_running = true;
-            let update_res = self.update();
+            let update_res = self.update(clear_hash_map);
             if let Err(err) = update_res {
                 println!("Error:Can't update packages : {:?}", err);
             }
@@ -68,7 +67,7 @@ impl Daemon {
     }
 
     //执行一次更新
-    fn update(&mut self) -> std::io::Result<()> {
+    fn update(&mut self,clear_hash_map:bool) -> std::io::Result<()> {
         println!("Info:Start updating");
 
         //懒删除
@@ -78,7 +77,7 @@ impl Daemon {
         }
 
         //生成新的扫描结果和懒删除列表
-        let (result, lazy_delete_list) = self.scanner.scan_packages(self.dir_packages.clone())?;
+        let (result, lazy_delete_list) = self.scanner.scan_packages(self.dir_packages.clone(),clear_hash_map)?;
 
         //发送结果
         self.result_sender.send(result).unwrap();

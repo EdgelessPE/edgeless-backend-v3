@@ -123,9 +123,11 @@ impl Scanner {
     pub fn scan_packages(
         &mut self,
         path: String,
+        clear_hash_map:bool,
     ) -> Result<(HashMap<String, Vec<EptFileNode>>, Vec<LazyDeleteNode>), io::Error> {
         let mut result: HashMap<String, Vec<EptFileNode>> = HashMap::new();
         let mut lazy_delete: Vec<LazyDeleteNode> = vec![];
+        let mut new_hash_map:HashMap<String, String>=HashMap::new();
 
         //读取分类目录
         println!("Info:Read packages on {}", &path);
@@ -183,7 +185,11 @@ impl Scanner {
                         String::from(Path::new(&sub_path).join(&file).to_string_lossy());
                     let (timestamp, size) = get_meta(file_path.clone()).unwrap();
                     let key = get_key(file.clone(), timestamp);
-                    let hash = self.hash_service.query(file_path, key).unwrap();
+                    let hash = self.hash_service.query(file_path, key.clone()).unwrap();
+
+                    if clear_hash_map {
+                        new_hash_map.insert(key.clone(), hash.clone());
+                    }
 
                     EptFileNode {
                         name: file,
@@ -195,6 +201,16 @@ impl Scanner {
                 .collect();
 
             result.insert(category, file_node_collection);
+        }
+
+        if clear_hash_map {
+            println!("Info:Clear hash map");
+            self.hash_service.update_map(new_hash_map);
+        }
+
+        match self.hash_service.save_hash_map() {
+            Ok(_)=>println!("Info:Hash map cache saved"),
+            Err(err)=>println!("Error:Can't save hash map {}",err),
         }
 
         Ok((result, lazy_delete))
@@ -217,6 +233,6 @@ impl Scanner {
                 file_path.to_string_lossy()
             );
         }
-        self.hash_service.delete_cache(key);
+        self.hash_service.delete_record(key);
     }
 }

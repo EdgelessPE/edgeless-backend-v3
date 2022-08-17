@@ -1,8 +1,8 @@
-use std::{cmp::Ordering, collections::HashMap};
+use std::{cmp::Ordering};
 
 use crate::{hash_service::HashService, scanner};
 
-// #[test]
+#[test]
 pub fn test_version_cmp() {
     let test_array = vec![
         ("2.3.3", "2.2.4", Ordering::Greater),
@@ -26,13 +26,8 @@ pub fn test_version_cmp() {
 
 #[test]
 pub fn test_scanner() {
-    let mut map = HashMap::new();
-    map.insert(
-        String::from("7-Zip美化版_21.7.0.0_Horatio Shaw.7z1643440187"),
-        String::from("114514"),
-    );
-    let hash_service = HashService::new(map);
+    let hash_service = HashService::new();
     let mut scanner = scanner::Scanner::new(hash_service);
-    let res = scanner.scan_packages(String::from("./test/packages"));
+    let res = scanner.scan_packages(String::from("./test/packages"),false);
     println!("{:?}", res);
 }
