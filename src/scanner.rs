@@ -115,20 +115,6 @@ impl Scanner {
         Ok(collection)
     }
 
-    fn get_file_node(&mut self, sub_path: String, name: String) -> Result<EptFileNode, io::Error> {
-        let file_path = sub_path.add(&name);
-        let (timestamp, size) = get_meta(file_path.clone())?;
-
-        Ok(EptFileNode {
-            hash: self
-                .hash_service
-                .query(file_path, get_key(name.clone(), timestamp))?,
-            name,
-            size,
-            timestamp,
-        })
-    }
-
     pub fn scan_packages(
         &mut self,
         path: String,

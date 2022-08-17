@@ -5,7 +5,7 @@ use std::io;
 use std::ops::Add;
 use std::sync::mpsc::{Receiver, Sender};
 
-use crate::constant::PROTOCOL;
+use crate::constant::{PROTOCOL,CMD_REQUEST};
 
 pub struct ResponseCollector {
     packages_receiver: Receiver<HashMap<String, Vec<EptFileNode>>>,
@@ -32,7 +32,7 @@ impl ResponseCollector {
         let c = self.config.to_owned();
 
         //发送更新请求
-        self.commander.send(String::from("request")).unwrap();
+        self.commander.send(String::from(CMD_REQUEST)).unwrap();
 
         //尝试获取通道中的内容
         loop {

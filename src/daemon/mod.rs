@@ -5,6 +5,7 @@ use std::time::SystemTime;
 use crate::class::{EptFileNode, LazyDeleteNode};
 use crate::hash_service::HashService;
 use crate::scanner::Scanner;
+use crate::constant::{CMD_REQUEST, UPDATE_INTERVAL};
 
 pub struct Daemon {
     timestamp_recent_finish: SystemTime,   //上次扫描结束时的时间戳
@@ -37,7 +38,7 @@ impl Daemon {
     }
 
     pub fn serve(&mut self) {
-        let cmd_request = String::from("request");
+        let cmd_request = String::from(CMD_REQUEST);
         while let Ok(cmd)=self.commander.recv() {
             println!("Daemon Info:Get cmd : {}", &cmd);
             if cmd == cmd_request {
@@ -54,7 +55,7 @@ impl Daemon {
                 .duration_since(self.timestamp_recent_finish)
                 .unwrap()
                 .as_secs()
-                > 5 * 60
+                > UPDATE_INTERVAL
         {
             self.status_running = true;
             let update_res = self.update();
@@ -80,7 +81,7 @@ impl Daemon {
         let (result, lazy_delete_list) = self.scanner.scan_packages(self.dir_packages.clone())?;
 
         //发送结果
-        self.result_sender.send(result);
+        self.result_sender.send(result).unwrap();
 
         //更新懒删除列表
         self.list_lazy_delete = lazy_delete_list;
