@@ -23,18 +23,19 @@ lazy_static! {
 }
 
 async fn handler() -> HttpResponse {
-    let collector = &mut *COLLECTOR.lock().unwrap();
-    if let Some(collector) = collector.as_mut() {
-        match collector.ept() {
+    let mut collector = COLLECTOR.lock().unwrap();
+    match collector.as_mut() {
+        Some(collector) => match collector.ept() {
             Ok(res) => HttpResponse::Ok().json(res),
             Err(e) =>  {
                 println!("Error:Can't collect ept response {:?}",e);
                 HttpResponse::InternalServerError().body("Can't collect ept response")
             }
+        },
+        None => {
+            println!("Error:Can't collect ept response: Uninit");
+            HttpResponse::InternalServerError().body("Can't collect ept response")
         }
-    } else {
-        println!("Error:Can't collect ept response: Uninit");
-        HttpResponse::InternalServerError().body("Can't collect ept response")
     }
 }
 
