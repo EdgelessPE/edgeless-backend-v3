@@ -9,7 +9,7 @@ services = ["plugins", "iso", "alpha", "ventoy", "hub"]
 
 [position]
 #plugins = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\插件包'
-plugins = 'D:\Desktop\Projects\EdgelessPE\ept-rearend-v3\test\插件包'
+plugins = './test/packages'
 iso = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket'
 alpha = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Alpha'
 ventoy = 'D:\Download\HubCache\Burn'

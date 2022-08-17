@@ -31,7 +31,7 @@ async fn main() -> std::io::Result<()> {
         cfg.position.plugins.clone(),
     );
 
-    let response_collector = ResponseCollector::new(result_receiver, cmd_sender, cfg.clone());
+    let mut response_collector = ResponseCollector::new(result_receiver, cmd_sender, cfg.clone());
 
     //启动 daemon 服务
     spawn(move || {
@@ -39,9 +39,20 @@ async fn main() -> std::io::Result<()> {
         daemon.serve();
     });
 
+    fn get_ept_response(response_collector:&mut ResponseCollector)->impl Responder {
+        let res=response_collector.ept();
+        if let Err(e)=res {
+            HttpResponse::InternalServerError().body("Can't collect ept response")
+        }else {
+            HttpResponse::Ok().json(res.unwrap())
+        }
+    }
+
     HttpServer::new(|| {
         App::new()
-        .route("/v3/ept", web::get().to(||async {"Hello World!"}))
+        .route("/v3/ept", web::get().to( || {
+            HttpResponse::Ok().body("body")
+        }))
         // .service(ept)
     })
     .bind(("127.0.0.1", 8080))?

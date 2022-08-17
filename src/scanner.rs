@@ -86,6 +86,7 @@ pub fn dulp_selector(names: Vec<String>) -> (String, Vec<String>) {
     let mut sorted: Vec<String> = names_with_version.into_iter().map(|node| node.0).collect();
     //弹出
     let reserve = sorted.pop().unwrap();
+    println!("Info:Reserve {}, lazy delete {:?}", &reserve, &sorted);
     //返回
     (reserve, sorted)
 }
@@ -100,6 +101,10 @@ impl Scanner {
     }
 
     fn read_dir(&mut self, path: String, filter: FileType) -> Result<Vec<String>, io::Error> {
+        let p = Path::new(&path);
+        if !p.exists() {
+            println!("Error:Path {} not exist!", &path);
+        }
         let category_dir = fs::read_dir(path)?;
 
         let mut collection = Vec::new();
@@ -123,9 +128,11 @@ impl Scanner {
         let mut lazy_delete: Vec<LazyDeleteNode> = vec![];
 
         //读取分类目录
+        println!("Info:Read packages on {}", &path);
         let categories = self.read_dir(path.clone(), FileType::Dir)?;
         //读取一层子目录
         for category in categories {
+            println!("Info:Scanning category {}", &category);
             //分类目录路径
             let sub_path = String::from(
                 Path::new(&path.clone())
@@ -194,6 +201,7 @@ impl Scanner {
     }
 
     pub fn delete_file(&mut self, path: String, key: String) {
+        println!("Info:Delete file {}", &path);
         let file_path = Path::new(&path);
         if file_path.exists() {
             if let Err(err) = fs::remove_file(&file_path) {
