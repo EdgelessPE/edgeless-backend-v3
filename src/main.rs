@@ -13,7 +13,7 @@ mod test;
 use std::{collections::HashMap, sync::mpsc::channel, thread::spawn};
 
 use crate::config::read_config;
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpResponse, HttpServer};
 use response_collector::ResponseCollector;
 
 #[actix_web::main] // or #[tokio::main]
@@ -39,17 +39,16 @@ async fn main() -> std::io::Result<()> {
         daemon.serve();
     });
 
-    fn get_ept_response(response_collector: &mut ResponseCollector) -> impl Responder {
-        let res = response_collector.ept();
-        if let Err(e) = res {
-            HttpResponse::InternalServerError().body("Can't collect ept response")
-        } else {
-            HttpResponse::Ok().json(res.unwrap())
-        }
-    }
-
     HttpServer::new(|| {
-        App::new().route("/v3/ept", web::get().to(|| HttpResponse::Ok().body("body")))
+        App::new().route("/v3/ept", web::get().to(|| {
+            let res = response_collector.ept();
+            if let Err(e) = res {
+                println!("Error:Can't collect ept response {:?}",e);
+                HttpResponse::InternalServerError().body("Can't collect ept response")
+            } else {
+                HttpResponse::Ok().json(res.unwrap())
+            }
+        }))
         // .service(ept)
     })
     .bind(("127.0.0.1", 8080))?
