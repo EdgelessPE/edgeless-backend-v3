@@ -14,7 +14,7 @@ pub enum FileType {
 
 //获取用于哈希服务索引的key
 fn get_key(file_name: String, timestamp: u64) -> String {
-    file_name.add(&timestamp.to_string())
+    file_name.add("_").add(&timestamp.to_string())
 }
 
 pub fn version_cmp(a: &Vec<u32>, b: &Vec<u32>) -> Ordering {

@@ -1,32 +1,48 @@
 use std::collections::HashMap;
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::{Receiver, Sender};
 use std::time::SystemTime;
 
 use crate::class::{EptFileNode, LazyDeleteNode};
+use crate::hash_service::HashService;
 use crate::scanner::Scanner;
 
-struct Daemon {
+pub struct Daemon {
     timestamp_recent_finish: SystemTime,   //上次扫描结束时的时间戳
     status_running: bool,                  //是否有一个扫描任务正在进行中
     list_lazy_delete: Vec<LazyDeleteNode>, //懒删除文件列表
 
-    sender: Sender<HashMap<String, Vec<EptFileNode>>>, //结果发送channel
-    scanner: Scanner,                                  //扫描器实例
-    dir_packages: String,                              //插件包所在目录
+    commander: Receiver<String>, //更新请求接收器
+    result_sender: Sender<HashMap<String, Vec<EptFileNode>>>, //结果发送channel
+    scanner: Scanner,            //扫描器实例
+    dir_packages: String,        //插件包所在目录
 }
 impl Daemon {
     pub fn new(
-        sender: Sender<HashMap<String, Vec<EptFileNode>>>,
-        scanner: Scanner,
+        commander: Receiver<String>,
+        result_sender: Sender<HashMap<String, Vec<EptFileNode>>>,
+        hash_map: HashMap<String, String>,
         dir_packages: String,
     ) -> Self {
+        let hash_service = HashService::new(hash_map);
+        let scanner = Scanner::new(hash_service);
         Daemon {
             timestamp_recent_finish: SystemTime::UNIX_EPOCH,
             status_running: false,
             list_lazy_delete: vec![],
-            sender,
+            result_sender,
             dir_packages,
             scanner,
+            commander,
+        }
+    }
+
+    pub fn serve(&mut self) {
+        let cmd_request = String::from("request");
+        while let Ok(cmd)=self.commander.recv() {
+            println!("Daemon Info:Get cmd : {}", &cmd);
+            if cmd == cmd_request {
+                self.request();
+            }
         }
     }
 
@@ -64,11 +80,12 @@ impl Daemon {
         let (result, lazy_delete_list) = self.scanner.scan_packages(self.dir_packages.clone())?;
 
         //发送结果
-        self.sender.send(result);
+        self.result_sender.send(result);
 
         //更新懒删除列表
         self.list_lazy_delete = lazy_delete_list;
 
+        println!("Info:Finish updating");
         Ok(())
     }
 }
