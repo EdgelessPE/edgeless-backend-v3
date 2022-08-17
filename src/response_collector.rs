@@ -28,7 +28,7 @@ impl ResponseCollector {
         }
     }
 
-    pub fn ept(&mut self) -> io::Result<EptResponse> {
+    pub fn ept_hello(&mut self) -> io::Result<EptResponse> {
         let c = self.config.to_owned();
 
         //发送更新请求
@@ -56,5 +56,9 @@ impl ResponseCollector {
             services: c.mirror.services,
             tree: self.packages_tree.clone(),
         })
+    }
+
+    pub fn ept_refresh(&mut self) {
+        self.commander.send(String::from(CMD_REQUEST)).unwrap();
     }
 }

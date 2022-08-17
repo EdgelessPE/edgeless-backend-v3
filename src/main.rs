@@ -24,8 +24,8 @@ lazy_static! {
     static ref COLLECTOR: Arc<Mutex<Option<ResponseCollector>>> = Arc::new(Mutex::new(None));
 }
 
-async fn handler() -> HttpResponse {
-    match COLLECTOR.lock().unwrap().as_mut().map(|v| v.ept()) {
+async fn ept_hello_handler() -> HttpResponse {
+    match COLLECTOR.lock().unwrap().as_mut().map(|v| v.ept_hello()) {
         Some(Ok(res)) => HttpResponse::Ok().json(res),
         Some(Err(e)) => {
             Log::error(&format!("Can't collect ept response {:?}", e));
@@ -38,6 +38,11 @@ async fn handler() -> HttpResponse {
             HttpResponse::InternalServerError().body("Can't collect ept response")
         }
     }
+}
+
+async fn ept_refresh_handler() -> HttpResponse {
+    let _= COLLECTOR.lock().unwrap().as_mut().map(|v| v.ept_refresh());
+    HttpResponse::Ok().body("Requested refresh")
 }
 
 #[actix_web::main] // or #[tokio::main]
@@ -64,8 +69,9 @@ async fn main() -> std::io::Result<()> {
     });
 
     HttpServer::new(|| {
-        App::new().route("/v3/ept", web::get().to(handler))
-        // .service(ept)
+        App::new()
+        .route("/v3/ept/hello", web::get().to(ept_hello_handler))
+        .route("/v3/ept/refresh", web::get().to(ept_refresh_handler))
     })
     .bind(("127.0.0.1", 8080))?
     .run()
