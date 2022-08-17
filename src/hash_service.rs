@@ -35,7 +35,7 @@ impl HashService {
         } else {
             map = HashMap::new();
         }
-        Log::info(&format!("Get hash map : {:?}", map));
+        // Log::info(&format!("Get hash map : {:?}", map));
         HashService { map }
     }
 
