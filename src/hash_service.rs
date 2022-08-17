@@ -39,12 +39,16 @@ impl HashService {
     }
 
     pub fn query(&mut self, path: String, key: String) -> io::Result<String> {
-        println!(
-            "Info:Query key {}, has entry : {}",
-            &key,
-            self.map.contains_key(&key)
-        );
-        Ok(self.map.entry(key).or_insert(get_sha256(path)?).to_owned())
+        // println!(
+        //     "Info:Query key {}, has entry : {}",
+        //     &key,
+        //     self.map.contains_key(&key)
+        // );
+        Ok(self
+            .map
+            .entry(key)
+            .or_insert_with(|| get_sha256(path).unwrap_or(String::new()))
+            .to_owned())
     }
 
     pub fn update_map(&mut self, new_map: HashMap<String, String>) {
