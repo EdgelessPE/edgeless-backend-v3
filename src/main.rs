@@ -5,6 +5,7 @@ mod hash_service;
 mod response_collector;
 mod scanner;
 mod utils;
+mod constant;
 
 #[cfg(test)]
 mod test;
@@ -26,6 +27,7 @@ async fn main() -> std::io::Result<()> {
 
     //启动 daemon 服务
     spawn(move ||{
+        daemon.request();
         daemon.serve();
     });
 

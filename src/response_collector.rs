@@ -3,12 +3,13 @@ use crate::config::Config;
 use std::collections::HashMap;
 use std::io;
 use std::ops::Add;
-use std::sync::mpsc::Receiver;
+use std::sync::mpsc::{Receiver, Sender};
 
-const PROTOCOL: &str = "3.0.0";
+use crate::constant::PROTOCOL;
 
 pub struct ResponseCollector {
     packages_receiver: Receiver<HashMap<String, Vec<EptFileNode>>>,
+    commander: Sender<String>,
     packages_tree: HashMap<String, Vec<EptFileNode>>,
     config: Config,
 }
@@ -16,10 +17,12 @@ pub struct ResponseCollector {
 impl ResponseCollector {
     pub fn new(
         packages_receiver: Receiver<HashMap<String, Vec<EptFileNode>>>,
+        commander: Sender<String>,
         config: Config,
     ) -> Self {
         ResponseCollector {
             packages_receiver,
+            commander,
             packages_tree: HashMap::new(),
             config,
         }
@@ -27,6 +30,9 @@ impl ResponseCollector {
 
     pub fn ept(&mut self) -> io::Result<EptResponse> {
         let c = self.config.to_owned();
+
+        //发送更新请求
+        self.commander.send(String::from("request")).unwrap();
 
         //尝试获取通道中的内容
         loop {
