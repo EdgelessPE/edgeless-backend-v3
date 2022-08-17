@@ -223,11 +223,11 @@ impl Scanner {
         let file_path = Path::new(&path);
         if file_path.exists() {
             if let Err(err) = fs::remove_file(&file_path) {
-                println!(
-                    "Fatal:Can't delete {}, io error : {}",
+                Log::error(&format!(
+                    "Can't delete {}, io error : {}",
                     file_path.to_string_lossy(),
                     err
-                );
+                ));
             }
         } else {
             Log::warn(&format!(

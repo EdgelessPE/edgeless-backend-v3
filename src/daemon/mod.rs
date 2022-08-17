@@ -41,7 +41,7 @@ impl Daemon {
     pub fn serve(&mut self) {
         let cmd_request = String::from(CMD_REQUEST);
         while let Ok(cmd) = self.commander.recv() {
-            println!("Daemon Info:Get cmd : {}", &cmd);
+            // println!("Daemon Info:Get cmd : {}", &cmd);
             if cmd == cmd_request {
                 self.request(false);
             }
@@ -71,6 +71,7 @@ impl Daemon {
     //执行一次更新
     fn update(&mut self, clear_hash_map: bool) -> std::io::Result<()> {
         Log::info("Start updating");
+        println!("Start updating");
 
         //懒删除
         for node in &self.list_lazy_delete {
@@ -90,6 +91,8 @@ impl Daemon {
         self.list_lazy_delete = lazy_delete_list;
 
         Log::info("Finish updating");
+        println!("Finish updating");
+
         Log::flush();
         Ok(())
     }
