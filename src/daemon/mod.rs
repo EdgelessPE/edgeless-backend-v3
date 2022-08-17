@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, Sender};
 use std::time::SystemTime;
 
+use casual_logger::Log;
+
 use crate::class::{EptFileNode, LazyDeleteNode};
 use crate::constant::{CMD_REQUEST, UPDATE_INTERVAL};
 use crate::hash_service::HashService;
@@ -59,7 +61,7 @@ impl Daemon {
             self.status_running = true;
             let update_res = self.update(clear_hash_map);
             if let Err(err) = update_res {
-                println!("Error:Can't update packages : {:?}", err);
+                Log::error(&format!("Can't update packages : {:?}", err));
             }
             self.timestamp_recent_finish = SystemTime::now();
             self.status_running = false;
@@ -68,7 +70,7 @@ impl Daemon {
 
     //执行一次更新
     fn update(&mut self,clear_hash_map:bool) -> std::io::Result<()> {
-        println!("Info:Start updating");
+        Log::info("Start updating");
 
         //懒删除
         for node in &self.list_lazy_delete {
@@ -85,7 +87,8 @@ impl Daemon {
         //更新懒删除列表
         self.list_lazy_delete = lazy_delete_list;
 
-        println!("Info:Finish updating");
+        Log::info("Finish updating");
+        Log::flush();
         Ok(())
     }
 }

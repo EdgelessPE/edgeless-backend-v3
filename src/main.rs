@@ -17,6 +17,7 @@ use actix_web::{web, App, HttpResponse, HttpServer};
 use response_collector::ResponseCollector;
 use lazy_static::lazy_static;
 use std::sync::{Arc, Mutex};
+use casual_logger::Log;
 
 lazy_static! {
     // 全局 ResponseCollector
@@ -27,11 +28,11 @@ async fn handler() -> HttpResponse {
     match COLLECTOR.lock().unwrap().as_mut().map(|v| v.ept()) {
         Some(Ok(res)) => HttpResponse::Ok().json(res),
         Some(Err(e)) =>  {
-            println!("Error:Can't collect ept response {:?}",e);
+            Log::error(&format!("Can't collect ept response {:?}",e));
             HttpResponse::InternalServerError().body("Can't collect ept response")
         },
         None => {
-            println!("Error:Can't collect ept response: Uninit");
+            Log::error("Can't collect ept response: Uninit");
             HttpResponse::InternalServerError().body("Can't collect ept response")
         }
     }
@@ -39,6 +40,8 @@ async fn handler() -> HttpResponse {
 
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    Log::remove_old_logs();
+
     let cfg = read_config().unwrap();
 
     let (result_sender, result_receiver) = channel();
@@ -65,4 +68,5 @@ async fn main() -> std::io::Result<()> {
     .bind(("127.0.0.1", 8080))?
     .run()
     .await
+    
 }

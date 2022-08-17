@@ -1,3 +1,5 @@
+use casual_logger::Log;
+
 use crate::class::{EptFileNode, LazyDeleteNode};
 use crate::hash_service::HashService;
 use std::cmp::{self, Ordering};
@@ -71,7 +73,7 @@ pub fn dulp_selector(names: Vec<String>) -> (String, Vec<String>) {
                 .map(|s| {
                     let try_parse = s.parse::<u32>();
                     if let Err(_) = try_parse {
-                        println!("Warning:Can't parse version for {}", name);
+                        Log::warn(&format!("Can't parse version for {}", name));
                         0
                     } else {
                         try_parse.unwrap()
@@ -86,7 +88,7 @@ pub fn dulp_selector(names: Vec<String>) -> (String, Vec<String>) {
     let mut sorted: Vec<String> = names_with_version.into_iter().map(|node| node.0).collect();
     //弹出
     let reserve = sorted.pop().unwrap();
-    println!("Info:Reserve {}, lazy delete {:?}", &reserve, &sorted);
+    Log::info(&format!("Reserve {}, lazy delete {:?}", &reserve, &sorted));
     //返回
     (reserve, sorted)
 }
@@ -103,7 +105,7 @@ impl Scanner {
     fn read_dir(&mut self, path: String, filter: FileType) -> Result<Vec<String>, io::Error> {
         let p = Path::new(&path);
         if !p.exists() {
-            println!("Error:Path {} not exist!", &path);
+            Log::error(&format!("Path {} not exist!", &path))
         }
         let category_dir = fs::read_dir(path)?;
 
@@ -123,18 +125,18 @@ impl Scanner {
     pub fn scan_packages(
         &mut self,
         path: String,
-        clear_hash_map:bool,
+        clear_hash_map: bool,
     ) -> Result<(HashMap<String, Vec<EptFileNode>>, Vec<LazyDeleteNode>), io::Error> {
         let mut result: HashMap<String, Vec<EptFileNode>> = HashMap::new();
         let mut lazy_delete: Vec<LazyDeleteNode> = vec![];
-        let mut new_hash_map:HashMap<String, String>=HashMap::new();
+        let mut new_hash_map: HashMap<String, String> = HashMap::new();
 
         //读取分类目录
-        println!("Info:Read packages on {}", &path);
+        Log::info(&format!("Read packages on {}", &path));
         let categories = self.read_dir(path.clone(), FileType::Dir)?;
         //读取一层子目录
         for category in categories {
-            println!("Info:Scanning category {}", &category);
+            Log::info(&format!("Scanning category {}", &category));
             //分类目录路径
             let sub_path = String::from(
                 Path::new(&path.clone())
@@ -204,20 +206,20 @@ impl Scanner {
         }
 
         if clear_hash_map {
-            println!("Info:Clear hash map");
+            Log::info("Clear hash map");
             self.hash_service.update_map(new_hash_map);
         }
 
         match self.hash_service.save_hash_map() {
-            Ok(_)=>println!("Info:Hash map cache saved"),
-            Err(err)=>println!("Error:Can't save hash map {}",err),
+            Ok(_) => Log::info("Hash map cache saved"),
+            Err(err) => Log::error(&format!("Can't save hash map {}", err)),
         }
 
         Ok((result, lazy_delete))
     }
 
     pub fn delete_file(&mut self, path: String, key: String) {
-        println!("Info:Delete file {}", &path);
+        Log::info(&format!("Delete file {}", &path));
         let file_path = Path::new(&path);
         if file_path.exists() {
             if let Err(err) = fs::remove_file(&file_path) {
@@ -228,10 +230,10 @@ impl Scanner {
                 );
             }
         } else {
-            println!(
-                "Warning:Can't delete {}, file not exist",
+            Log::warn(&format!(
+                "Can't delete {}, file not exist",
                 file_path.to_string_lossy()
-            );
+            ));
         }
         self.hash_service.delete_record(key);
     }

@@ -2,6 +2,7 @@ use sha256::digest_file;
 use std::fs;
 use std::path::Path;
 use std::{collections::HashMap, io};
+use casual_logger::Log;
 
 use crate::constant::HASH_MAP_FILE;
 
@@ -10,7 +11,7 @@ pub struct HashService {
 }
 
 fn get_sha256(path: String) -> io::Result<String> {
-    println!("Info:Computing sha256 for {}", &path);
+    Log::info(&format!("Computing sha256 for {}", &path));
     digest_file(Path::new(&path))
 }
 
@@ -23,27 +24,22 @@ impl HashService {
             let parse_res = bincode::deserialize(&cache);
             map = match parse_res {
                 Ok(val) => {
-                    println!("Info:Use hash cache");
+                    Log::info("Use hash cache");
                     val
                 }
                 Err(_) => {
-                    println!("Warning:Can't parse hash map cache, use new one");
+                    Log::warn("Can't parse hash map cache, use new one");
                     HashMap::new()
                 }
             };
         } else {
             map = HashMap::new();
         }
-        println!("Info:Get hash map : {:?}", map);
+        Log::info(&format!("Get hash map : {:?}", map));
         HashService { map }
     }
 
     pub fn query(&mut self, path: String, key: String) -> io::Result<String> {
-        // println!(
-        //     "Info:Query key {}, has entry : {}",
-        //     &key,
-        //     self.map.contains_key(&key)
-        // );
         Ok(self
             .map
             .entry(key)
