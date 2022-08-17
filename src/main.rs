@@ -19,18 +19,16 @@ use lazy_static::lazy_static;
 use std::sync::{Arc, Mutex};
 
 lazy_static! {
+    // 全局 ResponseCollector
     static ref COLLECTOR: Arc<Mutex<Option<ResponseCollector>>> = Arc::new(Mutex::new(None));
 }
 
 async fn handler() -> HttpResponse {
-    let mut collector = COLLECTOR.lock().unwrap();
-    match collector.as_mut() {
-        Some(collector) => match collector.ept() {
-            Ok(res) => HttpResponse::Ok().json(res),
-            Err(e) =>  {
-                println!("Error:Can't collect ept response {:?}",e);
-                HttpResponse::InternalServerError().body("Can't collect ept response")
-            }
+    match COLLECTOR.lock().unwrap().as_mut().map(|v| v.ept()) {
+        Some(Ok(res)) => HttpResponse::Ok().json(res),
+        Some(Err(e)) =>  {
+            println!("Error:Can't collect ept response {:?}",e);
+            HttpResponse::InternalServerError().body("Can't collect ept response")
         },
         None => {
             println!("Error:Can't collect ept response: Uninit");
@@ -54,9 +52,8 @@ async fn main() -> std::io::Result<()> {
         cfg.position.plugins.clone(),
     );
 
-    let mut collector = COLLECTOR.lock().unwrap();
-
-    *collector = Some(ResponseCollector::new(result_receiver, cmd_sender, cfg.clone()));
+    // 初始化全局 ResponseCollector
+    *(COLLECTOR.lock().unwrap()) = Some(ResponseCollector::new(result_receiver, cmd_sender, cfg.clone()));
 
     //启动 daemon 服务
     spawn(move || {
