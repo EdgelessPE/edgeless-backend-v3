@@ -49,7 +49,7 @@ impl Daemon {
     }
 
     //请求安排一次扫描更新
-    pub fn request(&mut self,clear_hash_map:bool) {
+    pub fn request(&mut self, clear_hash_map: bool) {
         //判断是否使能扫描
         if !self.status_running
             && SystemTime::now()
@@ -69,7 +69,7 @@ impl Daemon {
     }
 
     //执行一次更新
-    fn update(&mut self,clear_hash_map:bool) -> std::io::Result<()> {
+    fn update(&mut self, clear_hash_map: bool) -> std::io::Result<()> {
         Log::info("Start updating");
 
         //懒删除
@@ -79,7 +79,9 @@ impl Daemon {
         }
 
         //生成新的扫描结果和懒删除列表
-        let (result, lazy_delete_list) = self.scanner.scan_packages(self.dir_packages.clone(),clear_hash_map)?;
+        let (result, lazy_delete_list) = self
+            .scanner
+            .scan_packages(self.dir_packages.clone(), clear_hash_map)?;
 
         //发送结果
         self.result_sender.send(result).unwrap();

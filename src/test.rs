@@ -1,4 +1,4 @@
-use std::{cmp::Ordering};
+use std::cmp::Ordering;
 
 use crate::{hash_service::HashService, scanner};
 
@@ -28,6 +28,6 @@ pub fn test_version_cmp() {
 pub fn test_scanner() {
     let hash_service = HashService::new();
     let mut scanner = scanner::Scanner::new(hash_service);
-    let res = scanner.scan_packages(String::from("./test/packages"),false);
+    let res = scanner.scan_packages(String::from("./test/packages"), false);
     println!("{:?}", res);
 }

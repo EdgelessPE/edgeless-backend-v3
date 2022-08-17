@@ -10,14 +10,14 @@ mod utils;
 #[cfg(test)]
 mod test;
 
-use std::{ sync::mpsc::channel, thread::spawn};
+use std::{sync::mpsc::channel, thread::spawn};
 
 use crate::config::read_config;
 use actix_web::{web, App, HttpResponse, HttpServer};
-use response_collector::ResponseCollector;
-use lazy_static::lazy_static;
-use std::sync::{Arc, Mutex};
 use casual_logger::Log;
+use lazy_static::lazy_static;
+use response_collector::ResponseCollector;
+use std::sync::{Arc, Mutex};
 
 lazy_static! {
     // 全局 ResponseCollector
@@ -27,11 +27,11 @@ lazy_static! {
 async fn handler() -> HttpResponse {
     match COLLECTOR.lock().unwrap().as_mut().map(|v| v.ept()) {
         Some(Ok(res)) => HttpResponse::Ok().json(res),
-        Some(Err(e)) =>  {
-            Log::error(&format!("Can't collect ept response {:?}",e));
+        Some(Err(e)) => {
+            Log::error(&format!("Can't collect ept response {:?}", e));
             Log::flush();
             HttpResponse::InternalServerError().body("Can't collect ept response")
-        },
+        }
         None => {
             Log::error("Can't collect ept response: Uninit");
             Log::flush();
@@ -48,14 +48,14 @@ async fn main() -> std::io::Result<()> {
 
     let (result_sender, result_receiver) = channel();
     let (cmd_sender, cmd_receiver) = channel();
-    let mut daemon = daemon::Daemon::new(
-        cmd_receiver,
-        result_sender,
-        cfg.position.plugins.clone(),
-    );
+    let mut daemon = daemon::Daemon::new(cmd_receiver, result_sender, cfg.position.plugins.clone());
 
     // 初始化全局 ResponseCollector
-    *(COLLECTOR.lock().unwrap()) = Some(ResponseCollector::new(result_receiver, cmd_sender, cfg.clone()));
+    *(COLLECTOR.lock().unwrap()) = Some(ResponseCollector::new(
+        result_receiver,
+        cmd_sender,
+        cfg.clone(),
+    ));
 
     //启动 daemon 服务
     spawn(move || {
@@ -70,5 +70,4 @@ async fn main() -> std::io::Result<()> {
     .bind(("127.0.0.1", 8080))?
     .run()
     .await
-    
 }

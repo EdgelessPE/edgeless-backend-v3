@@ -1,8 +1,8 @@
+use casual_logger::Log;
 use sha256::digest_file;
 use std::fs;
 use std::path::Path;
 use std::{collections::HashMap, io};
-use casual_logger::Log;
 
 use crate::constant::HASH_MAP_FILE;
 
