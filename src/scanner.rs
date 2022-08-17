@@ -105,7 +105,7 @@ impl Scanner {
     fn read_dir(&mut self, path: String, filter: FileType) -> Result<Vec<String>, io::Error> {
         let p = Path::new(&path);
         if !p.exists() {
-            Log::error(&format!("Path {} not exist!", &path))
+            Log::error(&format!("Path {} not exist!", &path));
         }
         let category_dir = fs::read_dir(path)?;
 

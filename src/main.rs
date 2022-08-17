@@ -29,10 +29,12 @@ async fn handler() -> HttpResponse {
         Some(Ok(res)) => HttpResponse::Ok().json(res),
         Some(Err(e)) =>  {
             Log::error(&format!("Can't collect ept response {:?}",e));
+            Log::flush();
             HttpResponse::InternalServerError().body("Can't collect ept response")
         },
         None => {
             Log::error("Can't collect ept response: Uninit");
+            Log::flush();
             HttpResponse::InternalServerError().body("Can't collect ept response")
         }
     }
