@@ -12,16 +12,18 @@ mod test;
 
 use std::{sync::mpsc::channel, thread::spawn};
 
-use crate::config::read_config;
-use actix_web::{web, App, HttpResponse, HttpServer};
+use crate::config::{read_config, Config};
+use actix_web::{web, App, HttpResponse, HttpServer, get};
 use casual_logger::Log;
+use class::TokenRequiredQueryStruct;
 use lazy_static::lazy_static;
 use response_collector::ResponseCollector;
 use std::sync::{Arc, Mutex};
 
 lazy_static! {
-    // 全局 ResponseCollector
+    // 全局变量
     static ref COLLECTOR: Arc<Mutex<Option<ResponseCollector>>> = Arc::new(Mutex::new(None));
+    static ref CONFIG:Arc<Mutex<Option<Config>>> = Arc::new(Mutex::new(None));
 }
 
 async fn ept_hello_handler() -> HttpResponse {
@@ -40,9 +42,22 @@ async fn ept_hello_handler() -> HttpResponse {
     }
 }
 
-async fn ept_refresh_handler() -> HttpResponse {
-    let _= COLLECTOR.lock().unwrap().as_mut().map(|v| v.ept_refresh());
-    HttpResponse::Ok().body("Requested refresh")
+#[get("/v3/ept/refresh")]
+async fn ept_refresh_handler(
+    info: web::Query<TokenRequiredQueryStruct>,
+) -> HttpResponse {
+    let config_guard=CONFIG.lock().unwrap();
+    let config=config_guard.as_ref().unwrap();
+    let mut collector_guard=COLLECTOR.lock().unwrap();
+    let collector=collector_guard.as_mut().unwrap();
+    if info.token == config.token.alpha {
+        collector.ept_refresh(false);
+        return HttpResponse::Ok().body("Requested refresh");
+    }else if info.token == config.token.super_user {
+        collector.ept_refresh(true);
+        return HttpResponse::Ok().body("Requested force refresh");
+    }
+    HttpResponse::BadRequest().body("Invalid token")
 }
 
 #[actix_web::main] // or #[tokio::main]
@@ -55,23 +70,25 @@ async fn main() -> std::io::Result<()> {
     let (cmd_sender, cmd_receiver) = channel();
     let mut daemon = daemon::Daemon::new(cmd_receiver, result_sender, cfg.position.plugins.clone());
 
-    // 初始化全局 ResponseCollector
+    // 初始化全局变量
     *(COLLECTOR.lock().unwrap()) = Some(ResponseCollector::new(
         result_receiver,
         cmd_sender,
         cfg.clone(),
     ));
 
+    *(CONFIG.lock().unwrap()) = Some(cfg);
+
     //启动 daemon 服务
     spawn(move || {
-        daemon.request(true);
+        daemon.request(true,true);
         daemon.serve();
     });
 
     HttpServer::new(|| {
         App::new()
-        .route("/v3/ept/hello", web::get().to(ept_hello_handler))
-        .route("/v3/ept/refresh", web::get().to(ept_refresh_handler))
+            .route("/v3/ept/hello", web::get().to(ept_hello_handler))
+            .service(ept_refresh_handler)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

@@ -6,6 +6,7 @@ pub struct Config {
     pub position: Position,
     pub url: Url,
     pub config: SubConfig,
+    pub token:Token,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -46,4 +47,10 @@ pub struct Url {
 pub struct SubConfig {
     pub hub: String,
     pub notice: String,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Token {
+    pub alpha: String,
+    pub super_user: String,
 }

@@ -33,3 +33,7 @@ hub = 'disk/Socket/Hub/'
 hub = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub\Update\update.json'
 notice = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub\notice.json'
 alpha_cover = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Alpha\alpha.json'
+
+[token]
+alpha = 'ALPHA'
+super_user = 'SUPER_USER'

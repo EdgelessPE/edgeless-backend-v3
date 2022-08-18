@@ -5,7 +5,7 @@ use std::io;
 use std::ops::Add;
 use std::sync::mpsc::{Receiver, Sender};
 
-use crate::constant::{CMD_REQUEST, PROTOCOL};
+use crate::constant::{CMD_REQUEST, PROTOCOL, SU_REQUEST};
 
 pub struct ResponseCollector {
     packages_receiver: Receiver<HashMap<String, Vec<EptFileNode>>>,
@@ -58,7 +58,11 @@ impl ResponseCollector {
         })
     }
 
-    pub fn ept_refresh(&mut self) {
-        self.commander.send(String::from(CMD_REQUEST)).unwrap();
+    pub fn ept_refresh(&mut self,super_user:bool) {
+        if super_user {
+            self.commander.send(String::from(SU_REQUEST)).unwrap();
+        }else{
+            self.commander.send(String::from(CMD_REQUEST)).unwrap();
+        }
     }
 }

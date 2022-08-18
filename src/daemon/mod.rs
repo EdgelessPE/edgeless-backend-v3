@@ -5,13 +5,12 @@ use std::time::SystemTime;
 use casual_logger::Log;
 
 use crate::class::{EptFileNode, LazyDeleteNode};
-use crate::constant::{CMD_REQUEST, UPDATE_INTERVAL};
+use crate::constant::{CMD_REQUEST, SU_REQUEST, UPDATE_INTERVAL};
 use crate::hash_service::HashService;
 use crate::scanner::Scanner;
 
 pub struct Daemon {
     timestamp_recent_finish: SystemTime,   //上次扫描结束时的时间戳
-    status_running: bool,                  //是否有一个扫描任务正在进行中
     list_lazy_delete: Vec<LazyDeleteNode>, //懒删除文件列表
 
     commander: Receiver<String>, //更新请求接收器
@@ -29,7 +28,6 @@ impl Daemon {
         let scanner = Scanner::new(hash_service);
         Daemon {
             timestamp_recent_finish: SystemTime::UNIX_EPOCH,
-            status_running: false,
             list_lazy_delete: vec![],
             result_sender,
             dir_packages,
@@ -40,31 +38,32 @@ impl Daemon {
 
     pub fn serve(&mut self) {
         let cmd_request = String::from(CMD_REQUEST);
+        let su_request = String::from(SU_REQUEST);
         while let Ok(cmd) = self.commander.recv() {
             // println!("Daemon Info:Get cmd : {}", &cmd);
             if cmd == cmd_request {
-                self.request(false);
+                self.request(false, false);
+            } else if cmd == su_request {
+                self.request(false, true);
             }
         }
     }
 
     //请求安排一次扫描更新
-    pub fn request(&mut self, clear_hash_map: bool) {
+    pub fn request(&mut self, clear_hash_map: bool, force: bool) {
         //判断是否使能扫描
-        if !self.status_running
-            && SystemTime::now()
+        if force
+            || SystemTime::now()
                 .duration_since(self.timestamp_recent_finish)
                 .unwrap()
                 .as_secs()
                 > UPDATE_INTERVAL
         {
-            self.status_running = true;
             let update_res = self.update(clear_hash_map);
             if let Err(err) = update_res {
                 Log::error(&format!("Can't update packages : {:?}", err));
             }
             self.timestamp_recent_finish = SystemTime::now();
-            self.status_running = false;
         }
     }
 
