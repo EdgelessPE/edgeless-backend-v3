@@ -19,6 +19,7 @@ use class::TokenRequiredQueryStruct;
 use lazy_static::lazy_static;
 use response_collector::ResponseCollector;
 use std::sync::{Arc, Mutex};
+use utils::get_service;
 
 lazy_static! {
     // 全局变量
@@ -42,7 +43,7 @@ async fn ept_hello_handler() -> HttpResponse {
     }
 }
 
-#[get("/v3/ept/refresh")]
+#[get("/api/v3/ept/refresh")]
 async fn ept_refresh_handler(info: web::Query<TokenRequiredQueryStruct>) -> HttpResponse {
     let config_guard = CONFIG.lock().unwrap();
     let config = config_guard.as_ref().unwrap();
@@ -66,7 +67,13 @@ async fn main() -> std::io::Result<()> {
 
     let (result_sender, result_receiver) = channel();
     let (cmd_sender, cmd_receiver) = channel();
-    let mut daemon = daemon::Daemon::new(cmd_receiver, result_sender, cfg.position.plugins.clone());
+    let mut daemon = daemon::Daemon::new(
+        cmd_receiver,
+        result_sender,
+        get_service(&cfg.mirror.services, String::from("plugins"))
+            .unwrap()
+            .local,
+    );
 
     // 初始化全局变量
     *(COLLECTOR.lock().unwrap()) = Some(ResponseCollector::new(
@@ -85,7 +92,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
-            .route("/v3/ept/hello", web::get().to(ept_hello_handler))
+            .route("/api/v3/ept/hello", web::get().to(ept_hello_handler))
             .service(ept_refresh_handler)
     })
     .bind(("127.0.0.1", 8080))?

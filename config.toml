@@ -1,31 +1,20 @@
 [mirror]
 name = '菠萝云'
 description = 'Edgeless 官方主站点'
+root = 'https://pineapple.edgeless.top/'
+services = [
+    {name="plugins",path="disk/插件包/",local='./test/packages'},
+    {name="iso",path="disk/Socket/",local='I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket'},
+    {name="alpha",path="disk/Socket/Alpha/",local='I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Alpha'},
+    {name="ventoy",path="disk/Socket/Ventoy/",local='D:\Download\HubCache\Burn'},
+    {name="hub",path="disk/Socket/Hub/",local='I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub'},
+]
+
+[property]
 native_server = true
 upload_bandwidth = 1000
 sync_interval = 0
 official_maintained = true
-services = ["plugins", "iso", "alpha", "ventoy", "hub"]
-
-[position]
-#plugins = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\插件包'
-plugins = './test/packages'
-iso = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket'
-alpha = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Alpha'
-ventoy = 'D:\Download\HubCache\Burn'
-hub = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub'
-
-[url]
-domain = 'https://pineapple.edgeless.top/'
-
-ventoy_plugin = 'disk/Socket/Hub/ventoy_wimboot.img'
-
-plugins = 'disk/插件包/'
-iso = 'disk/Socket/'
-alpha = 'disk/Socket/Alpha/'
-alpha_cover = 'disk/Socket/Alpha/Edgeless.7z'
-ventoy = 'disk/Socket/Ventoy/'
-hub = 'disk/Socket/Hub/'
 
 
 # 外部配置应是一个json文件，会被直接呈现到api接口相应位置

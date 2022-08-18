@@ -1,8 +1,7 @@
-use crate::class::{EptFileNode, EptResponse};
+use crate::class::{EptFileNode, EptResponse, ServiceNodePublic};
 use crate::config::Config;
 use std::collections::HashMap;
 use std::io;
-use std::ops::Add;
 use std::sync::mpsc::{Receiver, Sender};
 
 use crate::constant::{CMD_REQUEST, PROTOCOL, SU_REQUEST};
@@ -44,17 +43,25 @@ impl ResponseCollector {
             }
         }
 
+        //过滤 services 中的 local 字段
+        let pub_services: Vec<ServiceNodePublic> = c
+            .mirror
+            .services
+            .into_iter()
+            .map(|node| ServiceNodePublic {
+                name: node.name,
+                path: node.path,
+            })
+            .collect();
+
         Ok(EptResponse {
             name: c.mirror.name,
             description: c.mirror.description,
-            native_server: c.mirror.native_server,
-            upload_bandwidth: c.mirror.upload_bandwidth,
             protocol: String::from(PROTOCOL),
-            root: c.url.domain.add(&c.url.plugins),
-            sync_interval: c.mirror.sync_interval,
-            official_maintained: c.mirror.official_maintained,
-            services: c.mirror.services,
-            tree: self.packages_tree.clone(),
+            root: c.mirror.root,
+            property: c.property,
+            services: pub_services,
+            plugins: self.packages_tree.clone(),
         })
     }
 

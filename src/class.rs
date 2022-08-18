@@ -62,18 +62,33 @@ pub struct AlphaCover {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ServiceNodeConfig {
+    pub name: String,
+    pub path: String,
+    pub local: String,
+}
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ServiceNodePublic {
+    pub name: String,
+    pub path: String,
+}
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EptResponse {
     pub name: String,
     pub description: String,
-    pub native_server: bool,
-    pub upload_bandwidth: u64,
     pub protocol: String,
     pub root: String,
+    pub services: Vec<ServiceNodePublic>,
+    pub property: MirrorProperty,
+    pub plugins: HashMap<String, Vec<EptFileNode>>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct MirrorProperty {
+    pub native_server: bool,
+    pub upload_bandwidth: u64,
     pub sync_interval: u64,
     pub official_maintained: bool,
-    pub services: Vec<String>,
-
-    pub tree: HashMap<String, Vec<EptFileNode>>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
