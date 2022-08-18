@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::{hash_service::HashService, scanner};
+use crate::{hash_service::HashService, scanner,utils};
 
 #[test]
 pub fn test_version_cmp() {
@@ -20,7 +20,7 @@ pub fn test_version_cmp() {
             .split(".")
             .map(|s| s.parse::<u32>().unwrap())
             .collect();
-        assert_eq!(scanner::version_cmp(&s1, &s2), node.2);
+        assert_eq!(utils::version_cmp(&s1, &s2), node.2);
     }
 }
 

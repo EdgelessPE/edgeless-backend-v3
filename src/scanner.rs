@@ -2,7 +2,7 @@ use casual_logger::Log;
 
 use crate::class::{EptFileNode, LazyDeleteNode};
 use crate::hash_service::HashService;
-use std::cmp::{self, Ordering};
+use crate::utils::version_cmp;
 use std::collections::HashMap;
 use std::ops::Add;
 use std::time::SystemTime;
@@ -17,34 +17,6 @@ pub enum FileType {
 //获取用于哈希服务索引的key
 fn get_key(file_name: String, timestamp: u64) -> String {
     file_name.add("_").add(&timestamp.to_string())
-}
-
-pub fn version_cmp(a: &Vec<u32>, b: &Vec<u32>) -> Ordering {
-    for i in 0..cmp::min(a.len(), b.len()) {
-        if a[i] < b[i] {
-            return Ordering::Less;
-        } else if a[i] > b[i] {
-            return Ordering::Greater;
-        }
-    }
-
-    //处理前缀版本号相同但是长度不一致的情况
-    if a.len() != b.len() {
-        //找出较长的那一个
-        let t = if a.len() < b.len() { b } else { a };
-        //读取剩余位
-        for i in cmp::min(a.len(), b.len())..cmp::max(a.len(), b.len()) {
-            if t[i] != 0 {
-                return if a.len() < b.len() {
-                    Ordering::Less
-                } else {
-                    Ordering::Greater
-                };
-            }
-        }
-    }
-
-    Ordering::Equal
 }
 
 //获取元信息，返回元组（时间戳，大小）

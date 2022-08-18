@@ -4,7 +4,7 @@ description = 'Edgeless 官方主站点'
 root = 'https://pineapple.edgeless.top/'
 services = [
     {name="plugins",path="disk/插件包/",local='./test/packages'},
-    {name="iso",path="disk/Socket/",local='I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket'},
+    {name="iso",path="disk/Socket/",local='./test/Socket'},
     {name="alpha",path="disk/Socket/Alpha/",local='I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Alpha'},
     {name="ventoy",path="disk/Socket/Ventoy/",local='D:\Download\HubCache\Burn'},
     {name="hub",path="disk/Socket/Hub/",local='I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub'},

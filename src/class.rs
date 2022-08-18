@@ -73,14 +73,16 @@ pub struct ServiceNodePublic {
     pub path: String,
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct EptResponse {
+pub struct HelloResponse {
     pub name: String,
     pub description: String,
     pub protocol: String,
     pub root: String,
-    pub services: Vec<ServiceNodePublic>,
     pub property: MirrorProperty,
+    pub services: Vec<ServiceNodePublic>,
+
     pub plugins: HashMap<String, Vec<EptFileNode>>,
+    pub iso:FileNode,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

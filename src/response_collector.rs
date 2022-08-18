@@ -1,7 +1,9 @@
-use crate::class::{EptFileNode, EptResponse, ServiceNodePublic};
+use crate::class::{EptFileNode, HelloResponse, ServiceNodePublic, FileNode};
 use crate::config::Config;
+use crate::utils::{file_selector, get_service, version_extractor};
 use std::collections::HashMap;
 use std::io;
+use std::ops::Add;
 use std::sync::mpsc::{Receiver, Sender};
 
 use crate::constant::{CMD_REQUEST, PROTOCOL, SU_REQUEST};
@@ -27,7 +29,7 @@ impl ResponseCollector {
         }
     }
 
-    pub fn hello(&mut self) -> io::Result<EptResponse> {
+    pub fn hello(&mut self) -> io::Result<HelloResponse> {
         let c = self.config.to_owned();
 
         //发送更新请求
@@ -47,6 +49,7 @@ impl ResponseCollector {
         let pub_services: Vec<ServiceNodePublic> = c
             .mirror
             .services
+            .clone()
             .into_iter()
             .map(|node| ServiceNodePublic {
                 name: node.name,
@@ -54,14 +57,24 @@ impl ResponseCollector {
             })
             .collect();
 
-        Ok(EptResponse {
+        //筛选 iso
+        let iso_service=get_service(&c.mirror.services, String::from("iso")).unwrap();
+        let selected_iso=file_selector(iso_service.local, String::from("^Edgeless.*iso$"), 2).unwrap();
+        let iso_version=version_extractor(selected_iso.clone(), 2).unwrap();
+
+        Ok(HelloResponse {
             name: c.mirror.name,
             description: c.mirror.description,
             protocol: String::from(PROTOCOL),
-            root: c.mirror.root,
+            root: c.mirror.root.clone(),
             property: c.property,
             services: pub_services,
             plugins: self.packages_tree.clone(),
+            iso:FileNode{
+                version:iso_version,
+                file_name:selected_iso.clone(),
+                url:c.mirror.root.clone().add(&selected_iso),
+            }
         })
     }
 
