@@ -58,10 +58,10 @@ impl ResponseCollector {
         })
     }
 
-    pub fn ept_refresh(&mut self,super_user:bool) {
+    pub fn ept_refresh(&mut self, super_user: bool) {
         if super_user {
             self.commander.send(String::from(SU_REQUEST)).unwrap();
-        }else{
+        } else {
             self.commander.send(String::from(CMD_REQUEST)).unwrap();
         }
     }

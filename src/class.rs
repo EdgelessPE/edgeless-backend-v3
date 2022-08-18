@@ -103,6 +103,6 @@ pub struct LazyDeleteNode {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct  TokenRequiredQueryStruct {
-    pub token:String
+pub struct TokenRequiredQueryStruct {
+    pub token: String,
 }

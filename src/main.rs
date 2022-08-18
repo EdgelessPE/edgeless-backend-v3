@@ -13,7 +13,7 @@ mod test;
 use std::{sync::mpsc::channel, thread::spawn};
 
 use crate::config::{read_config, Config};
-use actix_web::{web, App, HttpResponse, HttpServer, get};
+use actix_web::{get, web, App, HttpResponse, HttpServer};
 use casual_logger::Log;
 use class::TokenRequiredQueryStruct;
 use lazy_static::lazy_static;
@@ -43,17 +43,15 @@ async fn ept_hello_handler() -> HttpResponse {
 }
 
 #[get("/v3/ept/refresh")]
-async fn ept_refresh_handler(
-    info: web::Query<TokenRequiredQueryStruct>,
-) -> HttpResponse {
-    let config_guard=CONFIG.lock().unwrap();
-    let config=config_guard.as_ref().unwrap();
-    let mut collector_guard=COLLECTOR.lock().unwrap();
-    let collector=collector_guard.as_mut().unwrap();
+async fn ept_refresh_handler(info: web::Query<TokenRequiredQueryStruct>) -> HttpResponse {
+    let config_guard = CONFIG.lock().unwrap();
+    let config = config_guard.as_ref().unwrap();
+    let mut collector_guard = COLLECTOR.lock().unwrap();
+    let collector = collector_guard.as_mut().unwrap();
     if info.token == config.token.alpha {
         collector.ept_refresh(false);
         return HttpResponse::Ok().body("Requested refresh");
-    }else if info.token == config.token.super_user {
+    } else if info.token == config.token.super_user {
         collector.ept_refresh(true);
         return HttpResponse::Ok().body("Requested force refresh");
     }
@@ -81,7 +79,7 @@ async fn main() -> std::io::Result<()> {
 
     //启动 daemon 服务
     spawn(move || {
-        daemon.request(true,true);
+        daemon.request(true, true);
         daemon.serve();
     });
 

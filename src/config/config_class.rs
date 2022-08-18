@@ -6,7 +6,7 @@ pub struct Config {
     pub position: Position,
     pub url: Url,
     pub config: SubConfig,
-    pub token:Token,
+    pub token: Token,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
