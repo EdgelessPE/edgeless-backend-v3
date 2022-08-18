@@ -2,7 +2,6 @@ mod class;
 mod config;
 mod constant;
 mod daemon;
-mod extended;
 mod hash_service;
 mod response_collector;
 mod scanner;

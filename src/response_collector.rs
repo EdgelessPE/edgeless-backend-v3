@@ -2,8 +2,7 @@ use crate::class::{
     AlphaCover, AlphaResponse, EptFileNode, FileNode, HelloResponse, ServiceNodePublic,
 };
 use crate::config::Config;
-use crate::extended::get_json;
-use crate::utils::{file_selector, get_service, version_extractor};
+use crate::utils::{file_selector, get_service, version_extractor,get_json};
 use std::collections::HashMap;
 use std::io;
 use std::ops::Add;
