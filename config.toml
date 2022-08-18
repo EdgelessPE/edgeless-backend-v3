@@ -6,7 +6,7 @@ services = [
     {name="plugins",path="disk/插件包/",local='./test/packages'},
     {name="iso",path="disk/Socket/",local='./test/Socket'},
     {name="alpha",path="disk/Socket/Alpha/",local='./test/Socket'},
-    {name="ventoy",path="disk/Socket/Ventoy/",local='D:\Download\HubCache\Burn'},
+    {name="ventoy",path="disk/Socket/Ventoy/",local='./test/ventoy'},
     {name="hub",path="disk/Socket/Hub/",local='I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub'},
 ]
 

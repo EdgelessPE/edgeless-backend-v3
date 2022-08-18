@@ -84,6 +84,7 @@ pub struct HelloResponse {
     pub plugins: HashMap<String, Vec<EptFileNode>>,
     pub iso: FileNode,
     pub alpha: AlphaResponse,
+    pub ventoy: FileNode,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

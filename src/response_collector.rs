@@ -2,7 +2,7 @@ use crate::class::{
     AlphaCover, AlphaResponse, EptFileNode, FileNode, HelloResponse, ServiceNodePublic,
 };
 use crate::config::Config;
-use crate::utils::{file_selector, get_service, version_extractor,get_json};
+use crate::utils::{file_selector, get_json, get_service, version_extractor};
 use std::collections::HashMap;
 use std::io;
 use std::ops::Add;
@@ -83,8 +83,23 @@ impl ResponseCollector {
         let alpha_wim = FileNode {
             version: alpha_version,
             file_name: selected_alpha_wim.clone(),
-            url: c.mirror.root.clone().add(&selected_alpha_wim),
+            url: c
+                .mirror
+                .root
+                .clone()
+                .add(&alpha_service.path)
+                .add(&selected_alpha_wim),
         };
+
+        //筛选 ventoy
+        let ventoy_service = get_service(&c.mirror.services, String::from("ventoy")).unwrap();
+        let selected_ventoy = file_selector(
+            ventoy_service.local,
+            String::from("^ventoy-.*-windows.zip$"),
+            1,
+        )
+        .unwrap();
+        let ventoy_version = version_extractor(selected_ventoy.clone(), 1).unwrap();
 
         Ok(HelloResponse {
             name: c.mirror.name,
@@ -97,11 +112,26 @@ impl ResponseCollector {
             iso: FileNode {
                 version: iso_version,
                 file_name: selected_iso.clone(),
-                url: c.mirror.root.clone().add(&selected_iso),
+                url: c
+                    .mirror
+                    .root
+                    .clone()
+                    .add(&iso_service.path)
+                    .add(&selected_iso),
             },
             alpha: AlphaResponse {
                 wim: alpha_wim,
                 cover: alpha_cover,
+            },
+            ventoy: FileNode {
+                version: ventoy_version,
+                file_name: selected_ventoy.clone(),
+                url: c
+                    .mirror
+                    .root
+                    .clone()
+                    .add(&ventoy_service.path)
+                    .add(&selected_ventoy),
             },
         })
     }

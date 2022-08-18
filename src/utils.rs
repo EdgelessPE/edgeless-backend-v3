@@ -1,11 +1,12 @@
+use crate::class::ServiceNodeConfig;
+use crate::constant::SPLITER;
+use regex::Regex;
+use serde_json::Value;
 use std::{
     cmp::{self, Ordering},
     fs,
     path::Path,
 };
-use regex::Regex;
-use serde_json::Value;
-use crate::class::ServiceNodeConfig;
 
 pub fn get_json(path: String) -> Result<Value, String> {
     let text_res = fs::read_to_string(&path);
@@ -20,7 +21,7 @@ pub fn get_json(path: String) -> Result<Value, String> {
     Ok(parse_res.unwrap())
 }
 
-
+// TODO:增加缓存
 pub fn get_service(services: &Vec<ServiceNodeConfig>, name: String) -> Option<ServiceNodeConfig> {
     for service in services.clone().into_iter() {
         if service.name == name {
@@ -104,7 +105,7 @@ pub fn version_extractor(name: String, index: usize) -> Result<String, String> {
     }
 
     //再次切割（去拓展名切割），获取字段，将拓展名叠加到最后
-    let mut result: Vec<&str> = name[0..name.len() - ext_len - 1].split("_").collect();
+    let mut result: Vec<&str> = name[0..name.len() - ext_len - 1].split(SPLITER).collect();
     result.push(ext_name);
 
     if index > result.len() {
