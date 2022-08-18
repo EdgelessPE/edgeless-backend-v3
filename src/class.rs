@@ -82,7 +82,8 @@ pub struct HelloResponse {
     pub services: Vec<ServiceNodePublic>,
 
     pub plugins: HashMap<String, Vec<EptFileNode>>,
-    pub iso:FileNode,
+    pub iso: FileNode,
+    pub alpha: AlphaResponse,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

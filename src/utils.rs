@@ -53,7 +53,7 @@ pub fn file_selector(path: String, exp: String, version_index: usize) -> Result<
                     .collect();
                 if version_cmp(&cur_version_split, &result_version) == Ordering::Greater {
                     result = String::from(true_name);
-                    result_version=cur_version_split;
+                    result_version = cur_version_split;
                 }
             } else {
                 valid_data = true;
