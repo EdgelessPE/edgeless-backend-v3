@@ -27,7 +27,7 @@ impl ResponseCollector {
         }
     }
 
-    pub fn ept_hello(&mut self) -> io::Result<EptResponse> {
+    pub fn hello(&mut self) -> io::Result<EptResponse> {
         let c = self.config.to_owned();
 
         //发送更新请求

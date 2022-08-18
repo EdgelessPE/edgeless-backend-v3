@@ -27,8 +27,9 @@ lazy_static! {
     static ref CONFIG:Arc<Mutex<Option<Config>>> = Arc::new(Mutex::new(None));
 }
 
+#[get("/api/v3/hello")]
 async fn ept_hello_handler() -> HttpResponse {
-    match COLLECTOR.lock().unwrap().as_mut().map(|v| v.ept_hello()) {
+    match COLLECTOR.lock().unwrap().as_mut().map(|v| v.hello()) {
         Some(Ok(res)) => HttpResponse::Ok().json(res),
         Some(Err(e)) => {
             Log::error(&format!("Can't collect ept response {:?}", e));
@@ -92,7 +93,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
-            .route("/api/v3/ept/hello", web::get().to(ept_hello_handler))
+            .service(ept_hello_handler)
             .service(ept_refresh_handler)
     })
     .bind(("127.0.0.1", 8080))?
