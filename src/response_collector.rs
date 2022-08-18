@@ -1,5 +1,6 @@
 use crate::class::{
-    AlphaCover, AlphaResponse, EptFileNode, FileNode, HelloResponse, ServiceNodePublic,
+    AlphaCover, AlphaResponse, EptFileNode, FileNode, HelloResponse, PluginsResponse,
+    ServiceNodePublic,
 };
 use crate::config::Config;
 use crate::utils::{file_selector, get_json, get_service, version_extractor};
@@ -34,9 +35,9 @@ impl ResponseCollector {
     pub fn hello(&mut self) -> io::Result<HelloResponse> {
         let c = self.config.to_owned();
 
+        //获取插件信息
         //发送更新请求
         self.commander.send(String::from(CMD_REQUEST)).unwrap();
-
         //尝试获取通道中的内容
         loop {
             let try_receive = self.packages_receiver.try_recv();
@@ -46,7 +47,6 @@ impl ResponseCollector {
                 break;
             }
         }
-
         //过滤 services 中的 local 字段
         let pub_services: Vec<ServiceNodePublic> = c
             .mirror
@@ -58,6 +58,12 @@ impl ResponseCollector {
                 path: node.path,
             })
             .collect();
+        //创建响应结构体
+        let plugins_service = get_service(&c.mirror.services, String::from("plugins")).unwrap();
+        let plugins_response = PluginsResponse {
+            tree: self.packages_tree.clone(),
+            path: plugins_service.path,
+        };
 
         //筛选 iso
         let iso_service = get_service(&c.mirror.services, String::from("iso")).unwrap();
@@ -108,7 +114,7 @@ impl ResponseCollector {
             root: c.mirror.root.clone(),
             property: c.property,
             services: pub_services,
-            plugins: self.packages_tree.clone(),
+            plugins: plugins_response,
             iso: FileNode {
                 version: iso_version,
                 file_name: selected_iso.clone(),

@@ -81,10 +81,15 @@ pub struct HelloResponse {
     pub property: MirrorProperty,
     pub services: Vec<ServiceNodePublic>,
 
-    pub plugins: HashMap<String, Vec<EptFileNode>>,
+    pub plugins: PluginsResponse,
     pub iso: FileNode,
     pub alpha: AlphaResponse,
     pub ventoy: FileNode,
+}
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct PluginsResponse {
+    pub tree: HashMap<String, Vec<EptFileNode>>,
+    pub path: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
