@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use crate::class::{
-    AlphaCover, AlphaResponse, EptFileNode, FileNode, HelloResponse, PluginsResponse,
-    ServiceNodePublic,
+    AlphaCover, AlphaResponse, EptFileNode, FileNode, HelloResponse, HubExtendedJson, HubLatest,
+    HubNotice, HubPackages, HubResponse, HubUpdate, PluginsResponse, ServiceNodePublic,
 };
 use crate::config::Config;
 use crate::utils::{file_selector, get_json, get_service, version_extractor};
@@ -9,13 +11,58 @@ use std::io;
 use std::ops::Add;
 use std::sync::mpsc::{Receiver, Sender};
 
-use crate::constant::{CMD_REQUEST, PROTOCOL, SU_REQUEST};
+use crate::constant::{CMD_REQUEST, HUB_EXTENDED_UPDATE, HUB_UPDATE, PROTOCOL, SU_REQUEST};
 
 pub struct ResponseCollector {
     packages_receiver: Receiver<HashMap<String, Vec<EptFileNode>>>,
     commander: Sender<String>,
     packages_tree: HashMap<String, Vec<EptFileNode>>,
     config: Config,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+struct AlphaCoverJson {
+    lower_than: String,
+}
+
+fn get_hub_response(config: &Config) -> HubResponse {
+    //扫描hub最新版本
+    let hub_service = get_service(&config.mirror.services, String::from("hub")).unwrap();
+    let selected_hub = file_selector(
+        hub_service.local.clone(),
+        String::from("^Edgeless Hub.*7z$"),
+        2,
+    )
+    .unwrap();
+    let version = version_extractor(selected_hub.clone(), 2).unwrap();
+
+    //解析外部json文件
+    let json: HubExtendedJson = get_json(config.config.hub.to_owned()).unwrap();
+
+    //生成单元结构体
+    let latest = HubLatest {
+        version: version.clone(),
+        page: json.download_page,
+    };
+    let update = HubUpdate {
+        allow_normal_since: json.allow_normal_since,
+        force_update_until: json.force_update_until,
+        wide_gaps: json.wide_gaps,
+    };
+    let notice: Vec<HubNotice> = get_json(config.config.hub_notices.to_owned()).unwrap();
+    let root = config.mirror.root.to_owned().add(&hub_service.path);
+    let packages = HubPackages {
+        update: root.clone().add(HUB_UPDATE),
+        extended_update: root.clone().add(HUB_EXTENDED_UPDATE),
+        full: root.clone().add(&selected_hub),
+    };
+
+    HubResponse {
+        latest,
+        update,
+        notices: notice,
+        packages,
+    }
 }
 
 impl ResponseCollector {
@@ -76,9 +123,9 @@ impl ResponseCollector {
         let selected_alpha_wim =
             file_selector(alpha_service.local, String::from("^Edgeless.*wim$"), 2).unwrap();
         let alpha_version = version_extractor(selected_alpha_wim.clone(), 2).unwrap();
-        let extended_alpha_config = get_json(c.config.alpha_cover.clone()).unwrap();
+        let extended_alpha_config: AlphaCoverJson = get_json(c.config.alpha_cover.clone()).unwrap();
         let alpha_cover = AlphaCover {
-            lower_than: extended_alpha_config["lower_than"].to_string(),
+            lower_than: extended_alpha_config.lower_than,
             url: c
                 .mirror
                 .root
@@ -108,11 +155,11 @@ impl ResponseCollector {
         let ventoy_version = version_extractor(selected_ventoy.clone(), 1).unwrap();
 
         Ok(HelloResponse {
-            name: c.mirror.name,
-            description: c.mirror.description,
+            name: c.mirror.name.clone(),
+            description: c.mirror.description.clone(),
             protocol: String::from(PROTOCOL),
             root: c.mirror.root.clone(),
-            property: c.property,
+            property: c.property.clone(),
             services: pub_services,
             plugins: plugins_response,
             iso: FileNode {
@@ -139,6 +186,7 @@ impl ResponseCollector {
                     .add(&ventoy_service.path)
                     .add(&selected_ventoy),
             },
+            hub: get_hub_response(&c),
         })
     }
 

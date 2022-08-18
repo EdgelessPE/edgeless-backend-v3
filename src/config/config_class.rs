@@ -20,7 +20,7 @@ pub struct Mirror {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ExtendedConfig {
     pub hub: String,
-    pub notice: String,
+    pub hub_notices: String,
     pub alpha_cover: String,
 }
 

@@ -1,20 +1,22 @@
 use crate::class::ServiceNodeConfig;
 use crate::constant::SPLITER;
 use regex::Regex;
-use serde_json::Value;
 use std::{
     cmp::{self, Ordering},
     fs,
     path::Path,
 };
 
-pub fn get_json(path: String) -> Result<Value, String> {
+pub fn get_json<T>(path: String) -> Result<T, String>
+where
+    T: serde::de::DeserializeOwned,
+{
     let text_res = fs::read_to_string(&path);
     if let Err(e) = text_res {
         return Err(format!("Can't read file {} to string : {}", &path, e));
     }
     let text = &text_res.unwrap();
-    let parse_res: serde_json::Result<Value> = serde_json::from_str(text);
+    let parse_res: serde_json::Result<T> = serde_json::from_str(text);
     if let Err(e) = parse_res {
         return Err(format!("Can't parse file {} as json : {}", &path, e));
     }

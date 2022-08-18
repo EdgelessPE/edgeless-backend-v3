@@ -7,7 +7,7 @@ services = [
     {name="iso",path="disk/Socket/",local='./test/Socket'},
     {name="alpha",path="disk/Socket/Alpha/",local='./test/Socket'},
     {name="ventoy",path="disk/Socket/Ventoy/",local='./test/ventoy'},
-    {name="hub",path="disk/Socket/Hub/",local='I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub'},
+    {name="hub",path="disk/Socket/Hub/",local='./test/hub'},
 ]
 
 [property]
@@ -16,11 +16,9 @@ upload_bandwidth = 1000
 sync_interval = 0
 official_maintained = true
 
-
-# 外部配置应是一个json文件，会被直接呈现到api接口相应位置
 [config]
-hub = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub\Update\update.json'
-notice = 'I:\Edgeless\OneDrive - 洛阳科技职业学院\Socket\Hub\notice.json'
+hub = './test/hub/hub.json'
+hub_notices = './test/hub/notices.json'
 alpha_cover = './test/alpha_cover.json'
 
 [token]

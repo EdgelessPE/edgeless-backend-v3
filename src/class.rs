@@ -25,6 +25,7 @@ pub struct HubUpdate {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct HubNotice {
     pub id: String,
+    pub channel: String,
     pub level: String,
     pub message: String,
     pub description: String,
@@ -85,6 +86,7 @@ pub struct HelloResponse {
     pub iso: FileNode,
     pub alpha: AlphaResponse,
     pub ventoy: FileNode,
+    pub hub: HubResponse,
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct PluginsResponse {
@@ -104,7 +106,7 @@ pub struct MirrorProperty {
 pub struct HubResponse {
     pub latest: HubLatest,
     pub update: HubUpdate,
-    pub notice: HubNotice,
+    pub notices: Vec<HubNotice>,
     pub packages: HubPackages,
 }
 
@@ -129,4 +131,12 @@ pub struct LazyDeleteNode {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TokenRequiredQueryStruct {
     pub token: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct HubExtendedJson {
+    pub download_page: String,
+    pub allow_normal_since: String,
+    pub force_update_until: String,
+    pub wide_gaps: Vec<String>,
 }
