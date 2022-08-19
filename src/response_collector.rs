@@ -4,19 +4,23 @@ use crate::class::{
     ServiceNodeConfig, ServiceNodePublic,
 };
 use crate::config::{Config, ExtendedConfig};
-use crate::constant::{CMD_REQUEST, HUB_EXTENDED_UPDATE, HUB_UPDATE, PROTOCOL, SU_REQUEST};
+use crate::constant::{
+    CMD_REQUEST, HUB_EXTENDED_UPDATE, HUB_UPDATE, PROTOCOL, RESPONSE_VALID_INTERVAL, SU_REQUEST,
+};
 use crate::utils::{file_selector, get_json, get_service, version_extractor};
-use cached::proc_macro::cached;
 use std::collections::HashMap;
 use std::io;
 use std::ops::Add;
 use std::sync::mpsc::{Receiver, Sender};
+use std::time::SystemTime;
 
 pub struct ResponseCollector {
     packages_receiver: Receiver<HashMap<String, Vec<EptFileNode>>>,
     commander: Sender<String>,
     packages_tree: HashMap<String, Vec<EptFileNode>>,
     config: Config,
+
+    hello_cache: Option<(HelloResponse, SystemTime)>,
 }
 
 fn get_hub_response(
@@ -59,7 +63,6 @@ fn get_hub_response(
     }
 }
 
-#[cached(time = 600)]
 fn get_extended_jsons(
     extended_config: ExtendedConfig,
 ) -> Result<(HubExtendedJson, Vec<HubNotice>, AlphaCoverJson), String> {
@@ -81,10 +84,34 @@ impl ResponseCollector {
             commander,
             packages_tree: HashMap::new(),
             config,
+            hello_cache: None,
         }
     }
 
     pub fn hello(&mut self) -> io::Result<HelloResponse> {
+        if self.hello_cache.is_none() {
+            let res = self.get_hello_response()?;
+            self.hello_cache = Some((res.clone(), SystemTime::now()));
+            return Ok(res);
+        }
+
+        let (cache, recent_updated) = self.hello_cache.as_ref().unwrap();
+
+        if SystemTime::now()
+            .duration_since(*recent_updated)
+            .unwrap()
+            .as_secs()
+            > RESPONSE_VALID_INTERVAL
+        {
+            let res = self.get_hello_response()?;
+            self.hello_cache = Some((res.clone(), SystemTime::now()));
+            Ok(res)
+        } else {
+            Ok(cache.clone())
+        }
+    }
+
+    fn get_hello_response(&mut self) -> io::Result<HelloResponse> {
         let c = self.config.to_owned();
         let (hub, notice, extended_alpha_config) = get_extended_jsons(c.config.clone()).unwrap();
 
