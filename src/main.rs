@@ -96,7 +96,7 @@ async fn main() -> std::io::Result<()> {
             .service(ept_hello_handler)
             .service(ept_refresh_handler)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("127.0.0.1", 8383))?
     .run()
     .await
 }
