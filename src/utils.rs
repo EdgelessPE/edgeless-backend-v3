@@ -1,4 +1,4 @@
-use crate::class::{ServiceNodeConfig, FileType};
+use crate::class::{FileType, ServiceNodeConfig};
 use crate::constant::SPLITER;
 use casual_logger::Log;
 use regex::Regex;

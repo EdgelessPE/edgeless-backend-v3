@@ -1,13 +1,12 @@
 use casual_logger::Log;
 
-use crate::class::{EptFileNode, LazyDeleteNode, FileType};
+use crate::class::{EptFileNode, FileType, LazyDeleteNode};
 use crate::hash_service::HashService;
-use crate::utils::{version_cmp, read_dir};
+use crate::utils::{read_dir, version_cmp};
 use std::collections::HashMap;
 use std::ops::Add;
 use std::time::SystemTime;
 use std::{fs, io, path::Path};
-
 
 //获取用于哈希服务索引的key
 fn get_key(file_name: String, timestamp: u64) -> String {
@@ -68,7 +67,6 @@ impl Scanner {
     pub fn new(hash_service: HashService) -> Self {
         Scanner { hash_service }
     }
-
 
     pub fn scan_packages(
         &mut self,

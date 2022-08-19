@@ -17,7 +17,7 @@ pub struct Mirror {
     pub services: Vec<ServiceNodeConfig>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq)]
 pub struct ExtendedConfig {
     pub hub: String,
     pub hub_notices: String,

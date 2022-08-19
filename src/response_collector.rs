@@ -1,15 +1,16 @@
 use crate::class::{
-    AlphaCover, AlphaResponse, EptFileNode, FileNode, HelloResponse, HubExtendedJson, HubLatest,
-    HubNotice, HubPackages, HubResponse, HubUpdate, PluginsResponse, ServiceNodePublic, AlphaCoverJson,
+    AlphaCover, AlphaCoverJson, AlphaResponse, EptFileNode, FileNode, HelloResponse,
+    HubExtendedJson, HubLatest, HubNotice, HubPackages, HubResponse, HubUpdate, PluginsResponse,
+    ServiceNodeConfig, ServiceNodePublic,
 };
-use crate::config::Config;
+use crate::config::{Config, ExtendedConfig};
+use crate::constant::{CMD_REQUEST, HUB_EXTENDED_UPDATE, HUB_UPDATE, PROTOCOL, SU_REQUEST};
 use crate::utils::{file_selector, get_json, get_service, version_extractor};
+use cached::proc_macro::cached;
 use std::collections::HashMap;
 use std::io;
 use std::ops::Add;
 use std::sync::mpsc::{Receiver, Sender};
-
-use crate::constant::{CMD_REQUEST, HUB_EXTENDED_UPDATE, HUB_UPDATE, PROTOCOL, SU_REQUEST};
 
 pub struct ResponseCollector {
     packages_receiver: Receiver<HashMap<String, Vec<EptFileNode>>>,
@@ -18,10 +19,13 @@ pub struct ResponseCollector {
     config: Config,
 }
 
-
-fn get_hub_response(config: &Config) -> HubResponse {
+#[cached(time = 600)]
+fn get_hub_response(
+    hub_service: ServiceNodeConfig,
+    extended_config: ExtendedConfig,
+    root: String,
+) -> HubResponse {
     //扫描hub最新版本
-    let hub_service = get_service(&config.mirror.services, String::from("hub")).unwrap();
     let selected_hub = file_selector(
         hub_service.local.clone(),
         String::from("^Edgeless Hub.*7z$"),
@@ -31,7 +35,7 @@ fn get_hub_response(config: &Config) -> HubResponse {
     let version = version_extractor(selected_hub.clone(), 2).unwrap();
 
     //解析外部json文件
-    let json: HubExtendedJson = get_json(config.config.hub.to_owned()).unwrap();
+    let json: HubExtendedJson = get_json(extended_config.hub.to_owned()).unwrap();
 
     //生成单元结构体
     let latest = HubLatest {
@@ -43,8 +47,8 @@ fn get_hub_response(config: &Config) -> HubResponse {
         force_update_until: json.force_update_until,
         wide_gaps: json.wide_gaps,
     };
-    let notice: Vec<HubNotice> = get_json(config.config.hub_notices.to_owned()).unwrap();
-    let root = config.mirror.root.to_owned().add(&hub_service.path);
+    let notice: Vec<HubNotice> = get_json(extended_config.hub_notices.to_owned()).unwrap();
+    let root = root.add(&hub_service.path);
     let packages = HubPackages {
         update: root.clone().add(HUB_UPDATE),
         extended_update: root.clone().add(HUB_EXTENDED_UPDATE),
@@ -148,6 +152,13 @@ impl ResponseCollector {
         .unwrap();
         let ventoy_version = version_extractor(selected_ventoy.clone(), 1).unwrap();
 
+        //生成 hub response
+        let hub = get_hub_response(
+            get_service(&c.mirror.services, String::from("hub")).unwrap(),
+            c.config.clone(),
+            c.mirror.root.clone(),
+        );
+
         Ok(HelloResponse {
             name: c.mirror.name.clone(),
             description: c.mirror.description.clone(),
@@ -180,7 +191,7 @@ impl ResponseCollector {
                     .add(&ventoy_service.path)
                     .add(&selected_ventoy),
             },
-            hub: get_hub_response(&c),
+            hub,
         })
     }
 

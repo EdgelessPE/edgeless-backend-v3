@@ -62,7 +62,7 @@ pub struct AlphaCover {
     pub url: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Hash, PartialEq, Eq)]
 pub struct ServiceNodeConfig {
     pub name: String,
     pub path: String,
@@ -140,7 +140,6 @@ pub struct HubExtendedJson {
     pub force_update_until: String,
     pub wide_gaps: Vec<String>,
 }
-
 
 #[derive(PartialEq)]
 pub enum FileType {

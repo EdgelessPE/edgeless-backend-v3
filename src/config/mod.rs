@@ -2,7 +2,7 @@ mod config_class;
 mod validator;
 
 use crate::constant::CONFIG_FILE;
-pub use config_class::Config;
+pub use config_class::{Config, ExtendedConfig};
 use std::fs::File;
 use std::io;
 use std::io::Read;
@@ -18,12 +18,12 @@ pub fn read_config() -> Result<Config, io::Error> {
 
     let mut text = String::new();
     File::open(CONFIG_FILE)?.read_to_string(&mut text).unwrap();
-    let cfg=toml::from_str(&text).unwrap();
+    let cfg = toml::from_str(&text).unwrap();
 
     //运行配置校验
-    let cfg_validation=valid(&cfg);
-    if let Err(c)=cfg_validation {
-        panic!("Found {} errors, please check before restart",c);
+    let cfg_validation = valid(&cfg);
+    if let Err(c) = cfg_validation {
+        panic!("Found {} errors, please check before restart", c);
     }
 
     Ok(cfg)
