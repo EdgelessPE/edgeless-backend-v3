@@ -92,6 +92,7 @@ impl Daemon {
         Log::info("Finish updating packages");
         println!("Info:Finish updating packages");
 
+        Log::remove_old_logs();
         Log::flush();
         Ok(())
     }
