@@ -1,8 +1,6 @@
-use serde::{Deserialize, Serialize};
-
 use crate::class::{
     AlphaCover, AlphaResponse, EptFileNode, FileNode, HelloResponse, HubExtendedJson, HubLatest,
-    HubNotice, HubPackages, HubResponse, HubUpdate, PluginsResponse, ServiceNodePublic,
+    HubNotice, HubPackages, HubResponse, HubUpdate, PluginsResponse, ServiceNodePublic, AlphaCoverJson,
 };
 use crate::config::Config;
 use crate::utils::{file_selector, get_json, get_service, version_extractor};
@@ -20,10 +18,6 @@ pub struct ResponseCollector {
     config: Config,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-struct AlphaCoverJson {
-    lower_than: String,
-}
 
 fn get_hub_response(config: &Config) -> HubResponse {
     //扫描hub最新版本

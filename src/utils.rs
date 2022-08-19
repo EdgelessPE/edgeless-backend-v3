@@ -1,6 +1,8 @@
-use crate::class::ServiceNodeConfig;
+use crate::class::{ServiceNodeConfig, FileType};
 use crate::constant::SPLITER;
+use casual_logger::Log;
 use regex::Regex;
+use std::io;
 use std::{
     cmp::{self, Ordering},
     fs,
@@ -148,4 +150,24 @@ pub fn version_cmp(a: &Vec<u32>, b: &Vec<u32>) -> Ordering {
     }
 
     Ordering::Equal
+}
+
+pub fn read_dir(path: String, filter: FileType) -> Result<Vec<String>, io::Error> {
+    let p = Path::new(&path);
+    if !p.exists() {
+        Log::error(&format!("Path {} not exist!", &path));
+    }
+    let category_dir = fs::read_dir(path)?;
+
+    let mut collection = Vec::new();
+    for entry_res in category_dir {
+        let entry = entry_res?;
+        if (filter == FileType::Dir && entry.file_type().unwrap().is_dir())
+            || (filter == FileType::File && entry.file_type().unwrap().is_file())
+        {
+            collection.push(String::from(entry.file_name().to_string_lossy()));
+        }
+    }
+
+    Ok(collection)
 }

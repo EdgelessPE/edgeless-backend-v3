@@ -140,3 +140,15 @@ pub struct HubExtendedJson {
     pub force_update_until: String,
     pub wide_gaps: Vec<String>,
 }
+
+
+#[derive(PartialEq)]
+pub enum FileType {
+    Dir,
+    File,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct AlphaCoverJson {
+    pub lower_than: String,
+}
