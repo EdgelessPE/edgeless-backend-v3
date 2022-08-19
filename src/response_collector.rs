@@ -19,10 +19,10 @@ pub struct ResponseCollector {
     config: Config,
 }
 
-#[cached(time = 600)]
 fn get_hub_response(
     hub_service: ServiceNodeConfig,
-    extended_config: ExtendedConfig,
+    hub: HubExtendedJson,
+    notice: Vec<HubNotice>,
     root: String,
 ) -> HubResponse {
     //扫描hub最新版本
@@ -34,20 +34,16 @@ fn get_hub_response(
     .unwrap();
     let version = version_extractor(selected_hub.clone(), 2).unwrap();
 
-    //解析外部json文件
-    let json: HubExtendedJson = get_json(extended_config.hub.to_owned()).unwrap();
-
     //生成单元结构体
     let latest = HubLatest {
         version: version.clone(),
-        page: json.download_page,
+        page: hub.download_page,
     };
     let update = HubUpdate {
-        allow_normal_since: json.allow_normal_since,
-        force_update_until: json.force_update_until,
-        wide_gaps: json.wide_gaps,
+        allow_normal_since: hub.allow_normal_since,
+        force_update_until: hub.force_update_until,
+        wide_gaps: hub.wide_gaps,
     };
-    let notice: Vec<HubNotice> = get_json(extended_config.hub_notices.to_owned()).unwrap();
     let root = root.add(&hub_service.path);
     let packages = HubPackages {
         update: root.clone().add(HUB_UPDATE),
@@ -61,6 +57,17 @@ fn get_hub_response(
         notices: notice,
         packages,
     }
+}
+
+#[cached(time = 600)]
+fn get_extended_jsons(
+    extended_config: ExtendedConfig,
+) -> Result<(HubExtendedJson, Vec<HubNotice>, AlphaCoverJson), String> {
+    let hub: HubExtendedJson = get_json(extended_config.hub)?;
+    let notice: Vec<HubNotice> = get_json(extended_config.hub_notices)?;
+    let extended_alpha_config: AlphaCoverJson = get_json(extended_config.alpha_cover)?;
+
+    Ok((hub, notice, extended_alpha_config))
 }
 
 impl ResponseCollector {
@@ -79,6 +86,7 @@ impl ResponseCollector {
 
     pub fn hello(&mut self) -> io::Result<HelloResponse> {
         let c = self.config.to_owned();
+        let (hub, notice, extended_alpha_config) = get_extended_jsons(c.config.clone()).unwrap();
 
         //获取插件信息
         //发送更新请求
@@ -103,7 +111,7 @@ impl ResponseCollector {
                 path: node.path,
             })
             .collect();
-        //创建响应结构体
+        //创建插件响应结构体
         let plugins_service = get_service(&c.mirror.services, String::from("plugins")).unwrap();
         let plugins_response = PluginsResponse {
             tree: self.packages_tree.clone(),
@@ -121,7 +129,6 @@ impl ResponseCollector {
         let selected_alpha_wim =
             file_selector(alpha_service.local, String::from("^Edgeless.*wim$"), 2).unwrap();
         let alpha_version = version_extractor(selected_alpha_wim.clone(), 2).unwrap();
-        let extended_alpha_config: AlphaCoverJson = get_json(c.config.alpha_cover.clone()).unwrap();
         let alpha_cover = AlphaCover {
             lower_than: extended_alpha_config.lower_than,
             url: c
@@ -155,7 +162,8 @@ impl ResponseCollector {
         //生成 hub response
         let hub = get_hub_response(
             get_service(&c.mirror.services, String::from("hub")).unwrap(),
-            c.config.clone(),
+            hub,
+            notice,
             c.mirror.root.clone(),
         );
 
