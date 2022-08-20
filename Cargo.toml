@@ -1,5 +1,5 @@
 [package]
-name = "edgeless-backend-v3"
+name = "edgeless-backend"
 version = "0.1.0"
 edition = "2021"
 
