@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 export BUILD_ID=dontKillMe
 source $HOME/.cargo/env
 cargo build --release
