@@ -3,3 +3,4 @@
 /test
 *.bin
 *.log.toml
+/config.toml
