@@ -1,7 +1,5 @@
 #!/bin/bash
 export BUILD_ID=dontKillMe
-git restore .
-git pull
 source $HOME/.cargo/env
 cargo build --release
 
