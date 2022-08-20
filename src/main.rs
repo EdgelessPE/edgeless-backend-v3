@@ -14,7 +14,7 @@ use std::{sync::mpsc::channel, thread::spawn};
 
 use crate::config::{read_config, Config};
 use actix_web::{get, web, App, HttpResponse, HttpServer,middleware};
-use casual_logger::Log;
+use casual_logger::{Log, Opt};
 use class::TokenRequiredQueryStruct;
 use lazy_static::lazy_static;
 use response_collector::ResponseCollector;
@@ -62,6 +62,7 @@ async fn ept_refresh_handler(info: web::Query<TokenRequiredQueryStruct>) -> Http
 
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    Log::set_opt(Opt::Release);
     Log::remove_old_logs();
 
     let cfg = read_config().unwrap();

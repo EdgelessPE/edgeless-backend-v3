@@ -1,6 +1,6 @@
 #!/bin/zsh
-export BUILD_ID=dontKillMe
-export JENKINS_NODE_COOKIE=dontKillMe
+git restore .
+git pull
 source $HOME/.cargo/env
 cargo build --release
 
