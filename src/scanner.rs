@@ -82,7 +82,7 @@ impl Scanner {
         let categories = read_dir(path.clone(), FileType::Dir)?;
         //读取一层子目录
         for category in categories {
-            Log::info(&format!("Scanning category {}", &category));
+            // Log::info(&format!("Scanning category {}", &category));
             //分类目录路径
             let sub_path = String::from(
                 Path::new(&path.clone())
