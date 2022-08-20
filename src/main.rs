@@ -13,7 +13,7 @@ mod test;
 use std::{sync::mpsc::channel, thread::spawn};
 
 use crate::config::{read_config, Config};
-use actix_web::{get, web, App, HttpResponse, HttpServer};
+use actix_web::{get, web, App, HttpResponse, HttpServer,middleware};
 use casual_logger::Log;
 use class::TokenRequiredQueryStruct;
 use lazy_static::lazy_static;
@@ -93,6 +93,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
+            .wrap(middleware::Compress::default())
             .service(ept_hello_handler)
             .service(ept_refresh_handler)
     })
