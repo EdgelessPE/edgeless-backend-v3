@@ -1,5 +1,6 @@
 #!/bin/zsh
 export BUILD_ID=dontKillMe
+export JENKINS_NODE_COOKIE=dontKillMe
 source $HOME/.cargo/env
 cargo build --release
 
@@ -21,4 +22,4 @@ then
 	rm nohup.out
 fi
 
-nohup ./target/release/edgeless-backend&
+nohup ./target/release/edgeless-backend &
