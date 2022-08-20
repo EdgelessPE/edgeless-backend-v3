@@ -13,7 +13,7 @@ mod test;
 use std::{sync::mpsc::channel, thread::spawn};
 
 use crate::config::{read_config, Config};
-use actix_web::{get, web, App, HttpResponse, HttpServer,middleware};
+use actix_web::{get, middleware, web, App, HttpResponse, HttpServer};
 use casual_logger::{Log, Opt};
 use class::TokenRequiredQueryStruct;
 use lazy_static::lazy_static;

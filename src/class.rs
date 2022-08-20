@@ -50,10 +50,8 @@ pub struct FileNode {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EdgelessVentoy {
-    pub version: String,
-    pub file_name: String,
-    pub url: String,
-    pub plugin_url: String,
+    pub windows: FileNode,
+    pub plugin: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -85,7 +83,7 @@ pub struct HelloResponse {
     pub plugins: PluginsResponse,
     pub iso: FileNode,
     pub alpha: AlphaResponse,
-    pub ventoy: FileNode,
+    pub ventoy: EdgelessVentoy,
     pub hub: HubResponse,
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]

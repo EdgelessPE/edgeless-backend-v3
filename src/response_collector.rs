@@ -1,11 +1,12 @@
 use crate::class::{
-    AlphaCover, AlphaCoverJson, AlphaResponse, EptFileNode, FileNode, HelloResponse,
-    HubExtendedJson, HubLatest, HubNotice, HubPackages, HubResponse, HubUpdate, PluginsResponse,
-    ServiceNodeConfig, ServiceNodePublic,
+    AlphaCover, AlphaCoverJson, AlphaResponse, EdgelessVentoy, EptFileNode, FileNode,
+    HelloResponse, HubExtendedJson, HubLatest, HubNotice, HubPackages, HubResponse, HubUpdate,
+    PluginsResponse, ServiceNodeConfig, ServiceNodePublic,
 };
 use crate::config::{Config, ExtendedConfig};
 use crate::constant::{
     CMD_REQUEST, HUB_EXTENDED_UPDATE, HUB_UPDATE, PROTOCOL, RESPONSE_VALID_INTERVAL, SU_REQUEST,
+    VENTOY_PLUGIN_PATH,
 };
 use crate::utils::{file_selector, get_json, get_service, version_extractor};
 use std::collections::HashMap;
@@ -216,15 +217,23 @@ impl ResponseCollector {
                 wim: alpha_wim,
                 cover: alpha_cover,
             },
-            ventoy: FileNode {
-                version: ventoy_version,
-                file_name: selected_ventoy.clone(),
-                url: c
+            ventoy: EdgelessVentoy {
+                windows: FileNode {
+                    version: ventoy_version,
+                    file_name: selected_ventoy.clone(),
+                    url: c
+                        .mirror
+                        .root
+                        .clone()
+                        .add(&ventoy_service.path)
+                        .add(&selected_ventoy),
+                },
+                plugin: c
                     .mirror
                     .root
                     .clone()
                     .add(&ventoy_service.path)
-                    .add(&selected_ventoy),
+                    .add(VENTOY_PLUGIN_PATH),
             },
             hub,
         })
