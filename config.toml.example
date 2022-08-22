@@ -1,0 +1,26 @@
+[mirror]
+name = '菠萝云'
+description = 'Edgeless 官方主站点'
+root = 'https://pineapple.edgeless.top/'
+services = [
+    {name="plugins",path="disk/插件包/",local='./test/packages'},
+    {name="iso",path="disk/Socket/",local='./test/Socket'},
+    {name="alpha",path="disk/Socket/Alpha/",local='./test/Socket'},
+    {name="ventoy",path="disk/Socket/Ventoy/",local='./test/ventoy'},
+    {name="hub",path="disk/Socket/Hub/",local='./test/hub'},
+]
+
+[property]
+native_server = true
+upload_bandwidth = 1000
+sync_interval = 0
+official_maintained = true
+
+[config]
+hub = './test/hub/hub.json'
+hub_notices = './test/hub/notices.json'
+alpha_cover = './test/alpha_cover.json'
+
+[token]
+alpha = 'ALPHA'
+super_user = 'SUPER_USER'
