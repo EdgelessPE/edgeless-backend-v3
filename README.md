@@ -24,7 +24,7 @@
     "protocol": "3.0.0",
     "root": "https://pineapple.edgeless.top/",
     "property": {
-      "native_server": true,
+      "domestic_server": true,
       "upload_bandwidth": 1000,
       "sync_interval": 0,
       "official_maintained": true
