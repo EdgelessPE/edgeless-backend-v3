@@ -168,7 +168,7 @@ impl ResponseCollector {
         };
         let alpha_wim = FileNode {
             version: alpha_version,
-            file_name: selected_alpha_wim.clone(),
+            name: selected_alpha_wim.clone(),
             url: c
                 .mirror
                 .root
@@ -205,7 +205,7 @@ impl ResponseCollector {
             plugins: plugins_response,
             iso: FileNode {
                 version: iso_version,
-                file_name: selected_iso.clone(),
+                name: selected_iso.clone(),
                 url: c
                     .mirror
                     .root
@@ -220,7 +220,7 @@ impl ResponseCollector {
             ventoy: EdgelessVentoy {
                 windows: FileNode {
                     version: ventoy_version,
-                    file_name: selected_ventoy.clone(),
+                    name: selected_ventoy.clone(),
                     url: c
                         .mirror
                         .root
