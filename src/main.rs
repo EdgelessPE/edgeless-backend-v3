@@ -3,9 +3,11 @@ mod config;
 mod constant;
 mod daemon;
 mod hash_service;
-mod response_collector;
+mod response;
 mod scanner;
 mod utils;
+mod hash2;
+mod assembly_factory;
 
 #[cfg(test)]
 mod test;
@@ -17,7 +19,7 @@ use actix_web::{get, middleware, web, App, HttpResponse, HttpServer};
 use casual_logger::{Log, Opt};
 use class::TokenRequiredQueryStruct;
 use lazy_static::lazy_static;
-use response_collector::ResponseCollector;
+use response::ResponseCollector;
 use std::sync::{Arc, Mutex};
 use utils::get_service;
 

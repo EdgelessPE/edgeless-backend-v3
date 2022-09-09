@@ -1,6 +1,7 @@
 mod alpha;
 mod common;
 mod external;
+mod hash;
 mod hub;
 mod internal;
 mod mirror;
@@ -12,6 +13,7 @@ use serde::{Deserialize, Serialize};
 pub use alpha::{AlphaResponse,AlphaCover};
 pub use common::{FileNode,ServiceNodeConfig,ServiceNodePublic};
 pub use external::{AlphaCoverJson,HubExtendedJson};
+pub use hash::{Integrity,IntegrityMethod};
 pub use hub::{HubLatest,HubNotice,HubPackages,HubResponse,HubUpdate};
 pub use internal::{TokenRequiredQueryStruct,LazyDeleteNode,FileType};
 pub use mirror::MirrorProperty;

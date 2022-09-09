@@ -4,27 +4,28 @@ use std::time::SystemTime;
 
 use casual_logger::Log;
 
-use crate::class::{EptFileNode, LazyDeleteNode};
-use crate::constant::{CMD_REQUEST, SU_REQUEST, UPDATE_INTERVAL};
+use crate::class::{EptFileNode, LazyDeleteNode, HelloResponse};
+use crate::constant::{CMD_REQUEST, SU_REQUEST, UPDATE_INTERVAL, HASH_MAP_FILE};
 use crate::hash_service::HashService;
 use crate::scanner::Scanner;
+use crate::hash2::IntegrityCache;
 
 pub struct Daemon {
     timestamp_recent_finish: SystemTime,   //上次扫描结束时的时间戳
     list_lazy_delete: Vec<LazyDeleteNode>, //懒删除文件列表
 
     commander: Receiver<String>, //更新请求接收器
-    result_sender: Sender<HashMap<String, Vec<EptFileNode>>>, //结果发送channel
+    result_sender: Sender<HelloResponse>, //结果发送channel
     scanner: Scanner,            //扫描器实例
     dir_packages: String,        //插件包所在目录
 }
 impl Daemon {
     pub fn new(
         commander: Receiver<String>,
-        result_sender: Sender<HashMap<String, Vec<EptFileNode>>>,
+        result_sender: Sender<HelloResponse>,
         dir_packages: String,
     ) -> Self {
-        let hash_service = HashService::new();
+        let hash_service = IntegrityCache::from_file(HASH_MAP_FILE).unwrap();
         let scanner = Scanner::new(hash_service);
         Daemon {
             timestamp_recent_finish: SystemTime::UNIX_EPOCH,
@@ -72,16 +73,19 @@ impl Daemon {
         Log::info("Start updating packages");
         println!("Info:Start updating packages");
 
-        //懒删除
+        //插件包懒删除
         for node in &self.list_lazy_delete {
             self.scanner
                 .delete_file(node.path.to_owned(), node.key.to_owned())
         }
 
-        //生成新的扫描结果和懒删除列表
+        //生成新的插件包扫描结果和懒删除列表
         let (result, lazy_delete_list) = self
             .scanner
             .scan_packages(self.dir_packages.clone(), clear_hash_map)?;
+
+        //扫描Kernel
+        
 
         //发送结果
         self.result_sender.send(result).unwrap();

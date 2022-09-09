@@ -1,14 +1,14 @@
 use serde::{Deserialize, Serialize};
+use super::hash::Integrity;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FileNode {
     pub name: String,
     pub version: String,
+    pub url: String,
     pub size: u64,
     pub timestamp: u64,
-    pub hash: String, //SHA256
-    pub url: String,
+    pub integrity: Integrity,
 }
-
 #[derive(Serialize, Deserialize, Clone, Debug, Hash, PartialEq, Eq)]
 pub struct ServiceNodeConfig {
     pub name: String,

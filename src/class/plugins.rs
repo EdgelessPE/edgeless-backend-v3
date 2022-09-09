@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use super::Integrity;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct PluginsResponse {
     pub tree: HashMap<String, Vec<EptFileNode>>,
@@ -12,5 +14,5 @@ pub struct EptFileNode {
     pub name: String,
     pub size: u64,
     pub timestamp: u64,
-    pub hash: String, //SHA256
+    pub integrity: Integrity
 }

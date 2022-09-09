@@ -1,12 +1,14 @@
 use casual_logger::Log;
 
-use crate::class::{EptFileNode, FileType, LazyDeleteNode};
-use crate::hash_service::HashService;
-use crate::utils::{read_dir, version_cmp};
+use crate::class::{EptFileNode, FileNode, FileType, Integrity,IntegrityMethod, LazyDeleteNode};
+use crate::utils::{file_selector, read_dir, version_cmp, version_extractor};
 use std::collections::HashMap;
 use std::ops::Add;
 use std::time::SystemTime;
 use std::{fs, io, path::Path};
+use crate::hash2::IntegrityCache;
+use rayon::prelude::*;
+use crate::constant::HASH_MAP_FILE;
 
 //获取用于哈希服务索引的key
 fn get_key(file_name: String, timestamp: u64) -> String {
@@ -60,12 +62,12 @@ pub fn dulp_selector(names: Vec<String>) -> (String, Vec<String>) {
 }
 
 pub struct Scanner {
-    hash_service: HashService,
+    integrity: IntegrityCache,
 }
 
 impl Scanner {
-    pub fn new(hash_service: HashService) -> Self {
-        Scanner { hash_service }
+    pub fn new(integrity: IntegrityCache) -> Self {
+        Scanner { integrity }
     }
 
     pub fn scan_packages(
@@ -128,22 +130,24 @@ impl Scanner {
             //由字符串collection生成文件节点collection
             let file_node_collection: Vec<EptFileNode> = collection
                 .into_iter()
+                .par_bridge()
                 .map(|file| {
                     let file_path =
                         String::from(Path::new(&sub_path).join(&file).to_string_lossy());
                     let (timestamp, size) = get_meta(file_path.clone()).unwrap();
                     let key = get_key(file.clone(), timestamp);
-                    let hash = self.hash_service.query(file_path, key.clone()).unwrap();
+                    let integrity = self.integrity.query(key.clone(), file_path).unwrap().clone();
 
-                    if clear_hash_map {
-                        new_hash_map.insert(key.clone(), hash.clone());
-                    }
+                    // !TODO(hydrati): clear hash map feature
+                    // if clear_hash_map {
+                    //     new_hash_map.insert(key.clone(), hash.clone());
+                    // }
 
                     EptFileNode {
                         name: file,
                         size,
                         timestamp,
-                        hash,
+                        integrity
                     }
                 })
                 .collect();
@@ -151,17 +155,70 @@ impl Scanner {
             result.insert(category, file_node_collection);
         }
 
-        if clear_hash_map {
-            Log::info("Clear hash map");
-            self.hash_service.update_map(new_hash_map);
-        }
+        // if clear_hash_map {
+        //     Log::info("Clear hash map");
+        //     self.integrity.update_map(new_hash_map);
+        // }
 
-        match self.hash_service.save_hash_map() {
+        match self.integrity.save(HASH_MAP_FILE) {
             Ok(_) => Log::info("Hash map cache saved"),
             Err(err) => Log::error(&format!("Can't save hash map {}", err)),
         }
 
         Ok((result, lazy_delete))
+    }
+
+    pub fn scan_file_node(
+        &mut self,
+        path_local: String,
+        path_url: String,
+        regex: String,
+        version_index: usize,
+    ) -> anyhow::Result<FileNode> {
+        let name = file_selector(path_local.clone(), regex, version_index).unwrap();
+        let version = version_extractor(name.clone(), version_index).unwrap();
+
+        let file_path = String::from(Path::new(&path_local).join(&name).to_string_lossy());
+        let (timestamp, size) = get_meta(file_path.clone())?;
+
+        let key = get_key(name.clone(), timestamp);
+        let hash = self.integrity.query(key, file_path.clone())?;
+
+        let url = path_url.add("/").add(&name);
+        Ok(FileNode {
+            name,
+            version,
+            url,
+            size,
+            timestamp,
+            integrity: Integrity {
+                method: IntegrityMethod::Blake3,
+                value: String::new(),
+            },
+        })
+    }
+
+    pub fn get_file_node(
+        &self,
+        file_name:String,
+        path_local: String,
+        path_url: String,
+    )->Result<FileNode,io::Error>{
+        let file_path = String::from(Path::new(&path_local).join(&file_name).to_string_lossy());
+        let (timestamp, size) = get_meta(file_path.clone())?;
+        let url=String::from(Path::new(&path_url).join(&file_name).to_string_lossy());
+        Ok(FileNode {
+            name:file_name,
+            version:String::from("0.0.0"),
+            url,
+            size,
+            timestamp,
+            integrity: Integrity {
+                method: IntegrityMethod::Blake3,
+                value: String::new(),
+            },
+        })
+
     }
 
     pub fn delete_file(&mut self, path: String, key: String) {
@@ -181,6 +238,6 @@ impl Scanner {
                 file_path.to_string_lossy()
             ));
         }
-        self.hash_service.delete_record(key);
+        self.integrity.remove(key);
     }
 }

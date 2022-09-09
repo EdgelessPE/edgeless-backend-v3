@@ -8,6 +8,7 @@ pub const CMD_REQUEST: &str = "cmd_request";
 pub const SU_REQUEST: &str = "su_request";
 
 pub const SPLITER: [char; 2] = ['-', '_'];
-pub const HUB_UPDATE: &str = "Update/update.7z";
-pub const HUB_EXTENDED_UPDATE: &str = "Update/extended_update.7z";
+pub const HUB_UPDATE_DIR: &str = "Update";
+pub const HUB_UPDATE_PACK: &str = "update.7z";
+pub const HUB_EXTENDED_UPDATE_PACK: &str = "extended_update.7z";
 pub const VENTOY_PLUGIN_PATH: &str = "plugin/ventoy_wimboot.img";
