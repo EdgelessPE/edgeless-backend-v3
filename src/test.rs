@@ -23,11 +23,3 @@ pub fn test_version_cmp() {
         assert_eq!(utils::version_cmp(&s1, &s2), node.2);
     }
 }
-
-#[test]
-pub fn test_scanner() {
-    let hash_service = HashService::new();
-    let mut scanner = scanner::Scanner::new(hash_service);
-    let res = scanner.scan_packages(String::from("./test/packages"), false);
-    println!("{:?}", res);
-}
