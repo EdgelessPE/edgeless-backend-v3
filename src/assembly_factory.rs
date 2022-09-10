@@ -16,8 +16,8 @@ use crate::{
 
 pub fn get_general_response(
     scanner: &Scanner,
-    config: Config,
-) -> Result<(HelloResponse,AlphaResponse), anyhow::Error> {
+    config: &Config,
+) -> Result<(HelloResponse,AlphaResponse,Vec<LazyDeleteNode>), anyhow::Error> {
     let pub_services: Vec<ServiceNodePublic> = config
         .mirror
         .services
@@ -60,7 +60,7 @@ pub fn get_general_response(
         kernel: kernel_response,
         ventoy: ventoy_response,
         hub: hub_response,
-    },alpha_response))
+    },alpha_response,lazy_delete_list))
 }
 
 fn parse_extended_jsons(

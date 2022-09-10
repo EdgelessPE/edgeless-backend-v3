@@ -1,12 +1,12 @@
-use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, Sender};
 use std::time::SystemTime;
 
 use casual_logger::Log;
 
-use crate::class::{EptFileNode, LazyDeleteNode, HelloResponse};
+use crate::assembly_factory::get_general_response;
+use crate::class::{ LazyDeleteNode, HelloResponse, AlphaResponse};
+use crate::config::Config;
 use crate::constant::{CMD_REQUEST, SU_REQUEST, UPDATE_INTERVAL, HASH_MAP_FILE};
-use crate::hash_service::HashService;
 use crate::scanner::Scanner;
 use crate::hash2::IntegrityCache;
 
@@ -15,15 +15,15 @@ pub struct Daemon {
     list_lazy_delete: Vec<LazyDeleteNode>, //懒删除文件列表
 
     commander: Receiver<String>, //更新请求接收器
-    result_sender: Sender<HelloResponse>, //结果发送channel
+    result_sender: Sender<(HelloResponse,AlphaResponse)>, //结果发送channel
     scanner: Scanner,            //扫描器实例
-    dir_packages: String,        //插件包所在目录
+    config:Config,        //配置
 }
 impl Daemon {
     pub fn new(
         commander: Receiver<String>,
-        result_sender: Sender<HelloResponse>,
-        dir_packages: String,
+        result_sender: Sender<(HelloResponse,AlphaResponse)>,
+        config:Config,
     ) -> Self {
         let hash_service = IntegrityCache::from_file(HASH_MAP_FILE).unwrap();
         let scanner = Scanner::new(hash_service);
@@ -31,7 +31,7 @@ impl Daemon {
             timestamp_recent_finish: SystemTime::UNIX_EPOCH,
             list_lazy_delete: vec![],
             result_sender,
-            dir_packages,
+            config,
             scanner,
             commander,
         }
@@ -79,16 +79,11 @@ impl Daemon {
                 .delete_file(node.path.to_owned(), node.key.to_owned())
         }
 
-        //生成新的插件包扫描结果和懒删除列表
-        let (result, lazy_delete_list) = self
-            .scanner
-            .scan_packages(self.dir_packages.clone(), clear_hash_map)?;
-
-        //扫描Kernel
-        
+        //获取扫描结果
+        let (hello_response,alpha_response, lazy_delete_list) = get_general_response(&self.scanner, &self.config).unwrap();
 
         //发送结果
-        self.result_sender.send(result).unwrap();
+        self.result_sender.send((hello_response,alpha_response)).unwrap();
 
         //更新懒删除列表
         self.list_lazy_delete = lazy_delete_list;
