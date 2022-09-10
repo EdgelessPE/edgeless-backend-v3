@@ -6,7 +6,7 @@ use casual_logger::Log;
 use crate::assembly_factory::get_general_response;
 use crate::class::{ LazyDeleteNode, HelloResponse, AlphaResponse};
 use crate::config::Config;
-use crate::constant::{CMD_REQUEST, SU_REQUEST, UPDATE_INTERVAL, HASH_MAP_FILE};
+use crate::constant::{CMD_REQUEST, SU_REQUEST, CALC_HASH_INTERVAL, HASH_MAP_FILE};
 use crate::scanner::Scanner;
 use crate::hash2::IntegrityCache;
 
@@ -58,7 +58,7 @@ impl Daemon {
                 .duration_since(self.timestamp_recent_finish)
                 .unwrap()
                 .as_secs()
-                > UPDATE_INTERVAL
+                > CALC_HASH_INTERVAL
         {
             let update_res = self.update(clear_hash_map);
             if let Err(err) = update_res {

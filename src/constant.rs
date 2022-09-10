@@ -1,8 +1,8 @@
 pub const CONFIG_FILE: &str = "./config.toml";
 pub const HASH_MAP_FILE: &str = "./hash_map_blake3.bin";
 pub const PROTOCOL: &str = "3.1.0";
-pub const UPDATE_INTERVAL: u64 = 5 * 60;
-pub const RESPONSE_VALID_INTERVAL: u64 = 60;
+pub const CHECK_UPDATE_INTERVAL: u64 = 60;
+pub const CALC_HASH_INTERVAL: u64 = 5 * 60;
 
 pub const CMD_REQUEST: &str = "cmd_request";
 pub const SU_REQUEST: &str = "su_request";
