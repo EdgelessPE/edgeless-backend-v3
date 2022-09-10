@@ -2,36 +2,34 @@ mod class;
 mod config;
 mod constant;
 mod daemon;
-mod hash_service;
-mod response;
 mod scanner;
 mod utils;
 mod hash2;
 mod assembly_factory;
+mod bridge;
+mod daemon2;
 
 #[cfg(test)]
 mod test;
 
 use std::{sync::mpsc::channel, thread::spawn};
 
-use crate::config::{read_config, Config};
+use crate::{config::{read_config, Config}, bridge::Bridge};
 use actix_web::{get, middleware, web, App, HttpResponse, HttpServer};
 use casual_logger::{Log, Opt};
 use class::TokenRequiredQueryStruct;
 use lazy_static::lazy_static;
-use response::ResponseCollector;
 use std::sync::{Arc, Mutex};
-use utils::get_service;
 
 lazy_static! {
     // 全局变量
-    static ref COLLECTOR: Arc<Mutex<Option<ResponseCollector>>> = Arc::new(Mutex::new(None));
+    static ref BRIDGE: Arc<Mutex<Option<Bridge>>> = Arc::new(Mutex::new(None));
     static ref CONFIG:Arc<Mutex<Option<Config>>> = Arc::new(Mutex::new(None));
 }
 
 #[get("/api/v3/hello")]
 async fn ept_hello_handler() -> HttpResponse {
-    match COLLECTOR.lock().unwrap().as_mut().map(|v| v.hello()) {
+    match BRIDGE.lock().unwrap().as_mut().map(|v| v.hello()) {
         Some(Ok(res)) => HttpResponse::Ok().json(res),
         Some(Err(e)) => {
             Log::error(&format!("Can't collect ept response {:?}", e));
@@ -46,18 +44,32 @@ async fn ept_hello_handler() -> HttpResponse {
     }
 }
 
+#[get("/api/v3/alpha")]
+async fn ept_alpha_handler(info: web::Query<TokenRequiredQueryStruct>) -> HttpResponse {
+    match BRIDGE.lock().unwrap().as_mut().map(|v| v.alpha()) {
+        Some(Ok(res)) => HttpResponse::Ok().json(res),
+        Some(Err(e)) => {
+            Log::error(&format!("Can't collect alpha response {:?}", e));
+            Log::flush();
+            HttpResponse::InternalServerError().body("Can't collect alpha response")
+        }
+        None => {
+            Log::error("Can't collect alpha response: Uninit");
+            Log::flush();
+            HttpResponse::InternalServerError().body("Can't collect alpha response")
+        }
+    }
+}
+
 #[get("/api/v3/ept/refresh")]
 async fn ept_refresh_handler(info: web::Query<TokenRequiredQueryStruct>) -> HttpResponse {
     let config_guard = CONFIG.lock().unwrap();
     let config = config_guard.as_ref().unwrap();
-    let mut collector_guard = COLLECTOR.lock().unwrap();
+    let mut collector_guard = BRIDGE.lock().unwrap();
     let collector = collector_guard.as_mut().unwrap();
     if info.token == config.token.alpha {
-        collector.ept_refresh(false);
+        collector.update_cache(false);
         return HttpResponse::Ok().body("Requested refresh");
-    } else if info.token == config.token.super_user {
-        collector.ept_refresh(true);
-        return HttpResponse::Ok().body("Requested force refresh");
     }
     HttpResponse::BadRequest().body("Invalid token")
 }
@@ -74,19 +86,16 @@ async fn main() -> std::io::Result<()> {
     let mut daemon = daemon::Daemon::new(
         cmd_receiver,
         result_sender,
-        get_service(&cfg.mirror.services, String::from("plugins"))
-            .unwrap()
-            .local,
+        cfg.clone(),
     );
 
     // 初始化全局变量
-    *(COLLECTOR.lock().unwrap()) = Some(ResponseCollector::new(
+    *(BRIDGE.lock().unwrap()) = Some(Bridge::new(
         result_receiver,
         cmd_sender,
-        cfg.clone(),
     ));
-
     *(CONFIG.lock().unwrap()) = Some(cfg);
+
 
     //启动 daemon 服务
     spawn(move || {

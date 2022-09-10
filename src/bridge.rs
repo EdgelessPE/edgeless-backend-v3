@@ -31,7 +31,7 @@ impl Bridge {
         }
     }
 
-    fn update_cache(&mut self, block: bool) {
+    pub fn update_cache(&mut self, block: bool) {
         self.commander.send(String::from(SU_REQUEST)).unwrap();
         //尝试获取通道中的内容
         loop {

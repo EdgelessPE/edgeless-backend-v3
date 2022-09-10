@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::{hash_service::HashService, scanner, utils};
+use crate::utils;
 
 #[test]
 pub fn test_version_cmp() {
