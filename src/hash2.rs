@@ -4,6 +4,7 @@ use dashmap::DashMap;
 use std::fs::File;
 use std::path::Path;
 use std::io;
+use sha256::digest_file;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IntegrityMethod {
@@ -29,17 +30,16 @@ pub struct IntegrityCache {
 
 impl IntegrityCache {
   pub fn new() -> Self {
-    Log::info("Used new Integrity Cache");
     IntegrityCache { inner: DashMap::new() }
   }
 
   pub fn from_file<P: AsRef<Path>>(path: P) -> anyhow::Result<Self> {
     let mut file = File::open(&path)?;
-    Log::info("Integrity Cache File Opened");
     if let Ok(inner) = bincode::deserialize_from::<&mut File, IntegrityCacheInner>(&mut file) {
-      Log::info("Used Integrity Cache File");
+      Log::info("Use Integrity Cache File");
       Ok(Self { inner })
     } else {
+      Log::warn("Integrity Cache File corrupted, use empty one");
       Ok(Self::new())
     }
   }
@@ -47,12 +47,12 @@ impl IntegrityCache {
   pub fn compute<P: AsRef<Path>>(method: IntegrityMethod, path: P) -> anyhow::Result<Integrity> {
     match method {
       IntegrityMethod::Blake3 => compute_hash_blake3(path),
-      _ => todo!(),
+      IntegrityMethod::Sha256=> compute_hash_sha256(path),
     }
   }
 
   pub fn query<P: AsRef<Path>>(&mut self, key: String, path: P) -> anyhow::Result<&Integrity> {
-    //!TODO(hydrati): 在配置中设置默认哈希算法，这里暂时写死罢。  
+    //TODO: 在配置中设置默认哈希算法，这里暂时写死罢。  
     Ok(
       self.inner.entry(key)
       .or_try_insert_with(
@@ -127,6 +127,14 @@ pub fn compute_hash_blake3<P: AsRef<Path>>(path: P) -> anyhow::Result<Integrity>
   let hash = hasher.finalize();
   
   Ok(Integrity { method: IntegrityMethod::Blake3, value: hash.to_hex().to_string() })
+}
+
+pub fn compute_hash_sha256<P: AsRef<Path>>(path: P) -> anyhow::Result<Integrity> {
+  let value=digest_file(path)?;
+  Ok(Integrity{
+    method:IntegrityMethod::Sha256,
+    value
+  })
 }
 
 

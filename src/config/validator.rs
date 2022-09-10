@@ -13,7 +13,7 @@ pub fn valid(config: &Config) -> Result<(), i32> {
         let service_name: &str = &service.name[..];
         let (test_regex, version_index): (&str, i32) = match service_name {
             "plugins" => ("[^\\w]+", 0),
-            "iso" => ("^Edgeless.*iso$", 2),
+            "kernel" => ("^Edgeless.*iso$", 2),
             "alpha" => ("^Edgeless.*wim$", 2),
             "ventoy" => ("^ventoy-.*-windows.zip$", 1),
             "hub" => ("^Edgeless Hub.*7z$", 2),

@@ -1,5 +1,5 @@
 use crate::class::{
-    AlphaCover, AlphaCoverJson, AlphaResponse, EdgelessVentoy, EptFileNode, FileNode,
+    AlphaCover, AlphaCoverJson, AlphaResponse, VentoyResponse, EptFileNode, FileNode,
     HelloResponse, HubExtendedJson, HubLatest, HubNotice, HubPackages, HubResponse, HubUpdate,
     PluginsResponse, ServiceNodeConfig, ServiceNodePublic,
 };
@@ -203,7 +203,7 @@ impl ResponseCollector {
             property: c.property.clone(),
             services: pub_services,
             plugins: plugins_response,
-            iso: FileNode {
+            kernel: FileNode {
                 version: iso_version,
                 name: selected_iso.clone(),
                 url: c
@@ -214,10 +214,10 @@ impl ResponseCollector {
                     .add(&selected_iso),
             },
             alpha: AlphaResponse {
-                wim: alpha_wim,
+                kernel: alpha_wim,
                 cover: alpha_cover,
             },
-            ventoy: EdgelessVentoy {
+            ventoy: VentoyResponse {
                 windows: FileNode {
                     version: ventoy_version,
                     name: selected_ventoy.clone(),

@@ -4,7 +4,7 @@ description = 'Edgeless 官方主站点'
 root = 'https://pineapple.edgeless.top/'
 services = [
     {name="plugins",path="disk/插件包/",local='./test/packages'},
-    {name="iso",path="disk/Socket/",local='./test/Socket'},
+    {name="kernel",path="disk/Socket/",local='./test/Socket'},
     {name="alpha",path="disk/Socket/Alpha/",local='./test/Socket'},
     {name="ventoy",path="disk/Socket/Ventoy/",local='./test/ventoy'},
     {name="hub",path="disk/Socket/Hub/",local='./test/hub'},

@@ -18,7 +18,7 @@ pub use hub::{HubLatest,HubNotice,HubPackages,HubResponse,HubUpdate};
 pub use internal::{TokenRequiredQueryStruct,LazyDeleteNode,FileType};
 pub use mirror::MirrorProperty;
 pub use plugins::{PluginsResponse,EptFileNode};
-pub use ventoy::EdgelessVentoy;
+pub use ventoy::VentoyResponse;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct HelloResponse {
@@ -30,8 +30,7 @@ pub struct HelloResponse {
     pub services: Vec<ServiceNodePublic>,
 
     pub plugins: PluginsResponse,
-    pub iso: FileNode,
-    pub alpha: AlphaResponse,
-    pub ventoy: EdgelessVentoy,
+    pub kernel: FileNode,
+    pub ventoy: VentoyResponse,
     pub hub: HubResponse,
 }

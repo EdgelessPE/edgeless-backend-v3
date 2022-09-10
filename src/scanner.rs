@@ -73,7 +73,6 @@ impl Scanner {
     pub fn scan_packages(
         &mut self,
         path: String,
-        clear_hash_map: bool,
     ) -> Result<(HashMap<String, Vec<EptFileNode>>, Vec<LazyDeleteNode>), io::Error> {
         let mut result: HashMap<String, Vec<EptFileNode>> = HashMap::new();
         let mut lazy_delete: Vec<LazyDeleteNode> = vec![];
@@ -138,11 +137,6 @@ impl Scanner {
                     let key = get_key(file.clone(), timestamp);
                     let integrity = self.integrity.query(key.clone(), file_path).unwrap().clone();
 
-                    // !TODO(hydrati): clear hash map feature
-                    // if clear_hash_map {
-                    //     new_hash_map.insert(key.clone(), hash.clone());
-                    // }
-
                     EptFileNode {
                         name: file,
                         size,
@@ -154,11 +148,6 @@ impl Scanner {
 
             result.insert(category, file_node_collection);
         }
-
-        // if clear_hash_map {
-        //     Log::info("Clear hash map");
-        //     self.integrity.update_map(new_hash_map);
-        // }
 
         match self.integrity.save(HASH_MAP_FILE) {
             Ok(_) => Log::info("Hash map cache saved"),
