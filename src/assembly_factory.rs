@@ -50,6 +50,7 @@ pub fn get_general_response(
     let plugins_service = get_service(services, String::from("plugins")).unwrap();
     let (plugins_response, lazy_delete_list) =
         get_plugins_response(scanner, &mut root, plugins_service)?;
+
     //保存hash map bin
     scanner.save_hash_map();
 

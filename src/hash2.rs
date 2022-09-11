@@ -6,6 +6,8 @@ use std::fs::File;
 use std::io;
 use std::path::Path;
 
+use crate::constant::HASH_MAP_FILE;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IntegrityMethod {
     #[serde(rename = "sha256")]
@@ -30,19 +32,25 @@ pub struct IntegrityCache {
 
 impl IntegrityCache {
     pub fn new() -> Self {
-        IntegrityCache {
-            inner: DashMap::new(),
-        }
-    }
-
-    pub fn from_file<P: AsRef<Path>>(path: P) -> anyhow::Result<Self> {
-        let mut file = File::open(&path)?;
-        if let Ok(inner) = bincode::deserialize_from::<&mut File, IntegrityCacheInner>(&mut file) {
-            Log::info("Use Integrity Cache File");
-            Ok(Self { inner })
+        let cache_path = Path::new(HASH_MAP_FILE);
+        if !cache_path.exists() {
+            println!("Use empty one");
+            Self {
+                inner: DashMap::new(),
+            }
         } else {
-            Log::warn("Integrity Cache File corrupted, use empty one");
-            Ok(Self::new())
+            let mut file = File::open(&cache_path).unwrap();
+            if let Ok(inner) =
+                bincode::deserialize_from::<&mut File, IntegrityCacheInner>(&mut file)
+            {
+                println!("Use Integrity Cache File");
+                Log::info("Use Integrity Cache File");
+                Self { inner }
+            } else {
+                println!("Integrity Cache File corrupted, use empty one");
+                Log::warn("Integrity Cache File corrupted, use empty one");
+                Self::new()
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 use casual_logger::Log;
 
-use crate::class::{EptFileNode, FileNode, FileType, Integrity, IntegrityMethod, LazyDeleteNode};
+use crate::class::{EptFileNode, FileNode, FileType, LazyDeleteNode};
 use crate::constant::HASH_MAP_FILE;
 use crate::hash2::IntegrityCache;
 use crate::utils::{file_selector, read_dir, version_cmp, version_extractor};
@@ -82,7 +82,6 @@ impl Scanner {
     ) -> Result<(HashMap<String, Vec<EptFileNode>>, Vec<LazyDeleteNode>), io::Error> {
         let mut result: HashMap<String, Vec<EptFileNode>> = HashMap::new();
         let mut lazy_delete: Vec<LazyDeleteNode> = vec![];
-        let mut _new_hash_map: HashMap<String, String> = HashMap::new();
         let initial_calc_hash = !Path::new(HASH_MAP_FILE).exists();
 
         //读取分类目录
@@ -139,13 +138,14 @@ impl Scanner {
             let file_node_collection: Vec<EptFileNode> = collection
                 .into_iter()
                 .par_bridge()
-                .map_with(self.integrity.to_owned(), |integrity, file| {
+                .map_with(self.integrity.to_owned(), |box_integrity_cache, file| {
                     let file_path =
                         String::from(Path::new(&sub_path).join(&file).to_string_lossy());
                     let (timestamp, size) = get_meta(file_path.clone()).unwrap();
+
                     let key = get_key(file.clone(), timestamp);
-                    let integrity = integrity.as_mut();
-                    let integrity = integrity.query(&key, file_path).unwrap().clone();
+                    let integrity_cache = box_integrity_cache.as_mut();
+                    let integrity = integrity_cache.query(&key, file_path).unwrap().clone();
 
                     EptFileNode {
                         name: file,
@@ -176,7 +176,7 @@ impl Scanner {
         let (timestamp, size) = get_meta(file_path.clone())?;
 
         let key = get_key(name.clone(), timestamp);
-        let hash = self.integrity.query(key, file_path.clone())?;
+        let integrity = self.integrity.query(key, file_path.clone())?;
 
         let url = path_url.add("/").add(&name);
         Ok(FileNode {
@@ -185,29 +185,29 @@ impl Scanner {
             url,
             size,
             timestamp,
-            integrity: hash,
+            integrity,
         })
     }
 
     pub fn get_file_node(
-        &self,
+        &mut self,
         file_name: String,
         path_local: String,
         path_url: String,
-    ) -> Result<FileNode, io::Error> {
+    ) -> anyhow::Result<FileNode> {
         let file_path = String::from(Path::new(&path_local).join(&file_name).to_string_lossy());
         let (timestamp, size) = get_meta(file_path.clone())?;
         let url = String::from(Path::new(&path_url).join(&file_name).to_string_lossy());
+
+        let key = get_key(file_name.clone(), timestamp);
+        let integrity = self.integrity.query(key, file_path.clone())?;
         Ok(FileNode {
             name: file_name,
             version: String::from("0.0.0"),
             url,
             size,
             timestamp,
-            integrity: Integrity {
-                method: IntegrityMethod::Blake3,
-                value: String::new(),
-            },
+            integrity,
         })
     }
 

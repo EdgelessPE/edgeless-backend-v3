@@ -1,4 +1,3 @@
-use std::path::Path;
 use std::sync::mpsc::{Receiver, Sender};
 use std::time::SystemTime;
 
@@ -7,7 +6,7 @@ use casual_logger::Log;
 use crate::assembly_factory::get_general_response;
 use crate::class::{AlphaResponse, HelloResponse, LazyDeleteNode};
 use crate::config::Config;
-use crate::constant::{CALC_HASH_INTERVAL, CMD_REQUEST, HASH_MAP_FILE, SU_REQUEST};
+use crate::constant::{CALC_HASH_INTERVAL, CMD_REQUEST, SU_REQUEST};
 use crate::hash2::IntegrityCache;
 use crate::scanner::Scanner;
 
@@ -26,11 +25,7 @@ impl Daemon {
         result_sender: Sender<(HelloResponse, AlphaResponse)>,
         config: Config,
     ) -> Self {
-        let hash_service = if Path::new(HASH_MAP_FILE).exists() {
-            IntegrityCache::from_file(HASH_MAP_FILE).unwrap()
-        } else {
-            IntegrityCache::new()
-        };
+        let hash_service = IntegrityCache::new();
         let scanner = Scanner::new(hash_service);
         Daemon {
             timestamp_recent_finish: SystemTime::UNIX_EPOCH,
