@@ -4,7 +4,6 @@ use crate::class::{EptFileNode, FileNode, FileType, LazyDeleteNode};
 use crate::constant::HASH_MAP_FILE;
 use crate::hash2::IntegrityCache;
 use crate::utils::{file_selector, read_dir, version_cmp, version_extractor};
-use rayon::prelude::*;
 use std::collections::HashMap;
 use std::ops::Add;
 use std::time::SystemTime;
@@ -137,14 +136,13 @@ impl Scanner {
             //由字符串collection生成文件节点collection
             let file_node_collection: Vec<EptFileNode> = collection
                 .into_iter()
-                .par_bridge()
-                .map_with(self.integrity.to_owned(), |box_integrity_cache, file| {
+                .map(|file| {
                     let file_path =
                         String::from(Path::new(&sub_path).join(&file).to_string_lossy());
                     let (timestamp, size) = get_meta(file_path.clone()).unwrap();
 
                     let key = get_key(file.clone(), timestamp);
-                    let integrity_cache = box_integrity_cache.as_mut();
+                    let integrity_cache = self.integrity.as_mut();
                     let integrity = integrity_cache.query(&key, file_path).unwrap().clone();
 
                     EptFileNode {
