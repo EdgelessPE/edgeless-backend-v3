@@ -59,19 +59,19 @@ impl Bridge {
             > CHECK_UPDATE_INTERVAL
     }
 
-    pub fn hello(&self) -> anyhow::Result<HelloResponse> {
+    pub fn hello(&mut self) -> anyhow::Result<HelloResponse> {
         let is_none = self.hello_response.is_none();
         if is_none || self.is_expired() {
             self.update_cache(is_none);
         }
-        Ok(self.hello_response.unwrap())
+        Ok(self.hello_response.as_ref().unwrap().clone())
     }
 
-    pub fn alpha(&self) -> anyhow::Result<AlphaResponse> {
+    pub fn alpha(&mut self) -> anyhow::Result<AlphaResponse> {
         let is_none = self.alpha_response.is_none();
         if is_none || self.is_expired() {
             self.update_cache(is_none);
         }
-        Ok(self.alpha_response.unwrap())
+        Ok(self.alpha_response.as_ref().unwrap().clone())
     }
 }

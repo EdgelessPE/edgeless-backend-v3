@@ -51,18 +51,18 @@ impl IntegrityCache {
     }
   }
 
-  pub fn query<P: AsRef<Path>>(&mut self, key: String, path: P) -> anyhow::Result<&Integrity> {
-    //TODO: 在配置中设置默认哈希算法，这里暂时写死罢。  
+  pub fn query<K: ToString, P: AsRef<Path>>(&mut self, key: K, path: P) -> anyhow::Result<Integrity> {
+    //TODO: 在配置中设置默认哈希算法，这里暂时写死罢。
     Ok(
-      self.inner.entry(key)
+      self.inner.entry(key.to_string())
       .or_try_insert_with(
-        || Self::compute(IntegrityMethod::Blake3, path)
-      )?.value()
+        || -> Result<Integrity, anyhow::Error> {Self::compute(IntegrityMethod::Blake3, path)}
+      )?.value().clone()
     )
   }
 
-  pub fn remove(&mut self, key: String) -> Option<Integrity> {
-    self.inner.remove(&key).map(|v| v.1)
+  pub fn remove(&mut self, key: &String) -> Option<Integrity> {
+    self.inner.remove(key).map(|v| v.1)
   }
 
   pub fn save<P: AsRef<Path>>(&self, path: P) -> anyhow::Result<()> {
@@ -116,7 +116,7 @@ fn copy_wide(mut reader: impl io::Read, hasher: &mut blake3::Hasher) -> io::Resu
 }
 
 pub fn compute_hash_blake3<P: AsRef<Path>>(path: P) -> anyhow::Result<Integrity> {
-  let mut file = File::open(&path)?;
+  let file = File::open(&path)?;
   let mut hasher = blake3::Hasher::new();
   if let Some(mmap) = try_into_memmap_file(&file)? {
     hasher.update_rayon(mmap.get_ref());
@@ -125,7 +125,7 @@ pub fn compute_hash_blake3<P: AsRef<Path>>(path: P) -> anyhow::Result<Integrity>
   }
 
   let hash = hasher.finalize();
-  
+
   Ok(Integrity { method: IntegrityMethod::Blake3, value: hash.to_hex().to_string() })
 }
 
@@ -140,5 +140,14 @@ pub fn compute_hash_sha256<P: AsRef<Path>>(path: P) -> anyhow::Result<Integrity>
 
 #[cfg(test)]
 mod tests {
-  
+    use super::IntegrityCache;
+
+  #[test]
+  fn hash() -> anyhow::Result<()> {
+    let mut cache = IntegrityCache::new();
+    let integrity = cache.query("one", "./server.sh")?;
+    println!("{:#?}", integrity);
+
+    Ok(())
+  }
 }
