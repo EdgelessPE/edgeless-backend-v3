@@ -5,7 +5,7 @@ use std::{
 
 use crate::{
     class::{AlphaResponse, HelloResponse},
-    constant::{CHECK_UPDATE_INTERVAL, SU_REQUEST},
+    constant::{CHECK_UPDATE_INTERVAL, SU_REQUEST, CMD_REQUEST},
 };
 
 pub struct Bridge {
@@ -31,8 +31,13 @@ impl Bridge {
         }
     }
 
-    pub fn update_cache(&mut self, block: bool) {
-        self.commander.send(String::from(SU_REQUEST)).unwrap();
+    pub fn update_cache(&mut self, block: bool,force:bool) {
+        let cmd=if force {
+            String::from(SU_REQUEST)
+        }else{
+            String::from(CMD_REQUEST)
+        };
+        self.commander.send(cmd).unwrap();
         //尝试获取通道中的内容
         loop {
             let try_receive = self.result_receiver.try_recv();
@@ -63,7 +68,7 @@ impl Bridge {
     pub fn hello(&mut self) -> anyhow::Result<HelloResponse> {
         let is_none = self.hello_response.is_none();
         if is_none || self.is_expired() {
-            self.update_cache(is_none);
+            self.update_cache(is_none,false);
         }
         Ok(self.hello_response.as_ref().unwrap().clone())
     }
@@ -71,7 +76,7 @@ impl Bridge {
     pub fn alpha(&mut self) -> anyhow::Result<AlphaResponse> {
         let is_none = self.alpha_response.is_none();
         if is_none || self.is_expired() {
-            self.update_cache(is_none);
+            self.update_cache(is_none,false);
         }
         Ok(self.alpha_response.as_ref().unwrap().clone())
     }

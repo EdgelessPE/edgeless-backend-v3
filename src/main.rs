@@ -72,7 +72,7 @@ async fn ept_refresh_handler(info: web::Query<TokenRequiredQueryStruct>) -> Http
     let mut collector_guard = BRIDGE.lock().unwrap();
     let collector = collector_guard.as_mut().unwrap();
     if info.token == config.token.super_user {
-        collector.update_cache(false);
+        collector.update_cache(false,true);
         return HttpResponse::Ok().body("Requested refresh");
     }
     HttpResponse::BadRequest().body("Invalid token")

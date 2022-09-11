@@ -57,13 +57,12 @@ impl Daemon {
     //请求安排一次扫描更新
     pub fn request(&mut self, clear_hash_map: bool, force: bool) {
         //判断是否使能扫描
-        if force
-            || SystemTime::now()
-                .duration_since(self.timestamp_recent_finish)
-                .unwrap()
-                .as_secs()
-                > CALC_HASH_INTERVAL
-        {
+        let duration = SystemTime::now()
+            .duration_since(self.timestamp_recent_finish)
+            .unwrap()
+            .as_secs();
+        if force || duration > CALC_HASH_INTERVAL {
+            // println!("Debug:Schedule update with force : {},duration : {}", force,duration);
             let update_res = self.update(clear_hash_map);
             if let Err(err) = update_res {
                 Log::error(&format!("Can't update packages : {:?}", err));
