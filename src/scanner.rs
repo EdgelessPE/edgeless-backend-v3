@@ -62,12 +62,12 @@ pub fn dulp_selector(names: Vec<String>) -> (String, Vec<String>) {
 }
 
 pub struct Scanner {
-    integrity: IntegrityCache,
+    integrity: Box<IntegrityCache>,
 }
 
 impl Scanner {
     pub fn new(integrity: IntegrityCache) -> Self {
-        Scanner { integrity }
+        Scanner { integrity: Box::new(integrity) }
     }
 
     pub fn scan_packages(
@@ -76,7 +76,7 @@ impl Scanner {
     ) -> Result<(HashMap<String, Vec<EptFileNode>>, Vec<LazyDeleteNode>), io::Error> {
         let mut result: HashMap<String, Vec<EptFileNode>> = HashMap::new();
         let mut lazy_delete: Vec<LazyDeleteNode> = vec![];
-        let mut new_hash_map: HashMap<String, String> = HashMap::new();
+        let mut _new_hash_map: HashMap<String, String> = HashMap::new();
 
         //读取分类目录
         Log::info(&format!("Read packages on {}", &path));
@@ -130,12 +130,15 @@ impl Scanner {
             let file_node_collection: Vec<EptFileNode> = collection
                 .into_iter()
                 .par_bridge()
-                .map(|file| {
+                .map_with(
+                    self.integrity.to_owned(),
+                |integrity, file| {
                     let file_path =
                         String::from(Path::new(&sub_path).join(&file).to_string_lossy());
                     let (timestamp, size) = get_meta(file_path.clone()).unwrap();
                     let key = get_key(file.clone(), timestamp);
-                    let integrity = self.integrity.query(key.clone(), file_path).unwrap().clone();
+                    let integrity = integrity.as_mut();
+                    let integrity = integrity.query(&key, file_path).unwrap().clone();
 
                     EptFileNode {
                         name: file,
@@ -180,10 +183,7 @@ impl Scanner {
             url,
             size,
             timestamp,
-            integrity: Integrity {
-                method: IntegrityMethod::Blake3,
-                value: String::new(),
-            },
+            integrity: hash,
         })
     }
 
@@ -227,6 +227,6 @@ impl Scanner {
                 file_path.to_string_lossy()
             ));
         }
-        self.integrity.remove(key);
+        self.integrity.remove(&key);
     }
 }

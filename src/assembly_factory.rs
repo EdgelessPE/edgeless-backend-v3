@@ -15,7 +15,7 @@ use crate::{
 };
 
 pub fn get_general_response(
-    scanner: &Scanner,
+    scanner: &mut Scanner,
     config: &Config,
 ) -> Result<(HelloResponse,AlphaResponse,Vec<LazyDeleteNode>), anyhow::Error> {
     let pub_services: Vec<ServiceNodePublic> = config
@@ -30,31 +30,31 @@ pub fn get_general_response(
         .collect();
     let (hub_extended, notices, extended_alpha_config) =
         parse_extended_jsons(config.config.clone()).unwrap();
-    let root = &config.mirror.root;
+    let mut root = config.mirror.root.clone();
     let services = &config.mirror.services;
 
     let plugins_service = get_service(services, String::from("plugins")).unwrap();
     let (plugins_response, lazy_delete_list) =
-        get_plugins_response(scanner, root, plugins_service)?;
+        get_plugins_response(scanner, &mut root, plugins_service)?;
 
     let kernel_service = get_service(services, String::from("kernel")).unwrap();
-    let kernel_response = get_kernel_response(scanner, root, kernel_service)?;
+    let kernel_response = get_kernel_response(scanner, &root, kernel_service)?;
 
     let ventoy_service = get_service(services, String::from("ventoy")).unwrap();
-    let ventoy_response = get_ventoy_response(scanner, root, ventoy_service)?;
+    let ventoy_response = get_ventoy_response(scanner, &root, ventoy_service)?;
 
     let hub_service = get_service(services, String::from("hub")).unwrap();
-    let hub_response = get_hub_response(scanner, root, hub_service, hub_extended, notices)?;
+    let hub_response = get_hub_response(scanner, &root, hub_service, hub_extended, notices)?;
 
     let alpha_service=get_service(services, String::from("alpha")).unwrap();
-    let alpha_response=get_alpha_response(scanner, root, alpha_service, extended_alpha_config)?;
+    let alpha_response=get_alpha_response(scanner, &root, alpha_service, extended_alpha_config)?;
 
     Ok((HelloResponse {
-        name: config.mirror.name,
-        description: config.mirror.description,
+        name: config.mirror.name.clone(),
+        description: config.mirror.description.clone(),
         protocol: String::from(PROTOCOL),
         root:root.to_owned(),
-        property: config.property,
+        property: config.property.clone(),
         services: pub_services,
         plugins: plugins_response,
         kernel: kernel_response,
@@ -74,8 +74,8 @@ fn parse_extended_jsons(
 }
 
 fn get_plugins_response(
-    scanner: &Scanner,
-    root: &String,
+    scanner: &mut Scanner,
+    root: &mut String,
     plugins_service: ServiceNodeConfig,
 ) -> Result<(PluginsResponse, Vec<LazyDeleteNode>), anyhow::Error> {
     let (tree, lazy_delete_list) = scanner.scan_packages(plugins_service.local.clone())?;
@@ -83,20 +83,20 @@ fn get_plugins_response(
     Ok((
         PluginsResponse {
             tree,
-            path: root.add(&plugins_service.path),
+            path: root.clone() + (&plugins_service.path),
         },
         lazy_delete_list,
     ))
 }
 
 fn get_kernel_response(
-    scanner: &Scanner,
+    scanner: &mut Scanner,
     root: &String,
     kernel_service: ServiceNodeConfig,
 ) -> Result<FileNode, anyhow::Error> {
     let file_node = scanner.scan_file_node(
         kernel_service.local,
-        root.add(&kernel_service.path),
+        root.clone().add(&kernel_service.path),
         String::from("^Edgeless.*iso$"),
         2,
     )?;
@@ -105,7 +105,7 @@ fn get_kernel_response(
 }
 
 fn get_alpha_response(
-    scanner: &Scanner,
+    scanner: &mut Scanner,
     root: &String,
     alpha_service: ServiceNodeConfig,
     extended_alpha_config: AlphaCoverJson,
@@ -113,8 +113,8 @@ fn get_alpha_response(
     let path_local = String::from(Path::new(&alpha_service.local).to_string_lossy());
     let cover_file_node = scanner.get_file_node(
         String::from(ALPHA_COVER),
-        path_local,
-        root.add(&alpha_service.path),
+        path_local.clone(),
+        root.clone().add(&alpha_service.path),
     )?;
     let kernel_wim_file_node = scanner.scan_file_node(
         path_local,
@@ -133,7 +133,7 @@ fn get_alpha_response(
 }
 
 fn get_ventoy_response(
-    scanner: &Scanner,
+    scanner: &mut Scanner,
     root: &String,
     ventoy_service: ServiceNodeConfig,
 ) -> Result<VentoyResponse, anyhow::Error> {
@@ -163,14 +163,14 @@ fn get_ventoy_response(
 }
 
 fn get_hub_response(
-    scanner: &Scanner,
+    scanner: &mut Scanner,
     root: &String,
     hub_service: ServiceNodeConfig,
     hub_extended: HubExtendedJson,
     notices: Vec<HubNotice>,
 ) -> Result<HubResponse, anyhow::Error> {
     let path_local = hub_service.local;
-    let path_url = root.add(&hub_service.path);
+    let path_url = root.clone().add(&hub_service.path);
     let path_update = String::from(
         Path::new(&path_local)
             .join(HUB_UPDATE_DIR)
@@ -178,7 +178,7 @@ fn get_hub_response(
     );
 
     let file_node_hub =
-        scanner.scan_file_node(path_local, path_url, String::from("^Edgeless Hub.*7z$"), 2)?;
+        scanner.scan_file_node(path_local, path_url.clone(), String::from("^Edgeless Hub.*7z$"), 2)?;
     let file_node_update = scanner.get_file_node(
         String::from(HUB_UPDATE_PACK),
         path_update.clone(),

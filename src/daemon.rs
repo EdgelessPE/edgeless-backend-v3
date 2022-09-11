@@ -69,7 +69,7 @@ impl Daemon {
     }
 
     //执行一次更新
-    fn update(&mut self, clear_hash_map: bool) -> std::io::Result<()> {
+    fn update(&mut self, _clear_hash_map: bool) -> std::io::Result<()> {
         Log::info("Start updating packages");
         println!("Info:Start updating packages");
 
@@ -80,7 +80,7 @@ impl Daemon {
         }
 
         //获取扫描结果
-        let (hello_response,alpha_response, lazy_delete_list) = get_general_response(&self.scanner, &self.config).unwrap();
+        let (hello_response,alpha_response, lazy_delete_list) = get_general_response(&mut self.scanner, &self.config).unwrap();
 
         //发送结果
         self.result_sender.send((hello_response,alpha_response)).unwrap();

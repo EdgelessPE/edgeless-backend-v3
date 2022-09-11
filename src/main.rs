@@ -7,7 +7,7 @@ mod utils;
 mod hash2;
 mod assembly_factory;
 mod bridge;
-mod daemon2;
+// mod daemon2;
 
 #[cfg(test)]
 mod test;
@@ -45,7 +45,7 @@ async fn ept_hello_handler() -> HttpResponse {
 }
 
 #[get("/api/v3/alpha")]
-async fn ept_alpha_handler(info: web::Query<TokenRequiredQueryStruct>) -> HttpResponse {
+async fn ept_alpha_handler(_info: web::Query<TokenRequiredQueryStruct>) -> HttpResponse {
     match BRIDGE.lock().unwrap().as_mut().map(|v| v.alpha()) {
         Some(Ok(res)) => HttpResponse::Ok().json(res),
         Some(Err(e)) => {
