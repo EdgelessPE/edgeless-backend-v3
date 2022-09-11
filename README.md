@@ -2,6 +2,9 @@
 
 全新的完全版本 Edgeless 后端服务器程序。此版本为 Edgeless 服务端的完全实现版本，遵守 `Edgeless Backend Protocol V3` 协议，提供全部的 Edgeless 服务。
 
+## 安放测试目录
+解压 `test.7z` 到项目根目录，然后执行 `cp config.toml.example config.toml`
+
 ## 启动
 - 编辑 `config.toml` 然后运行 `cargo run` 进行测试。
 - 若显示`Info:Config validation passed` 则说明已通过配置校验，然后请求 `localhost:8383/api/v3/hello` 查看是否正常响应。

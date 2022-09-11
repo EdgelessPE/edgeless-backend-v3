@@ -3,11 +3,11 @@ name = '菠萝云'
 description = 'Edgeless 官方主站点'
 root = 'https://pineapple.edgeless.top/'
 services = [
-    {name="plugins",path="disk/插件包/",local='./test/packages'},
+    {name="plugins",path="disk/插件包/",local='./test/Packages'},
     {name="kernel",path="disk/Socket/",local='./test/Socket'},
-    {name="alpha",path="disk/Socket/Alpha/",local='./test/Socket'},
-    {name="ventoy",path="disk/Socket/Ventoy/",local='./test/ventoy'},
-    {name="hub",path="disk/Socket/Hub/",local='./test/hub'},
+    {name="alpha",path="disk/Socket/Alpha/",local='./test/Socket/Alpha'},
+    {name="ventoy",path="disk/Socket/Ventoy/",local='./test/Ventoy'},
+    {name="hub",path="disk/Socket/Hub/",local='./test/Hub'},
 ]
 
 [property]
@@ -17,9 +17,9 @@ sync_interval = 0
 official_maintained = true
 
 [config]
-hub = './test/hub/hub.json'
-hub_notices = './test/hub/notices.json'
-alpha_cover = './test/alpha_cover.json'
+hub = './test/config/hub.json'
+hub_notices = './test/config/notices.json'
+alpha_cover = './test/config/alpha_cover.json'
 
 [token]
 alpha = 'ALPHA'
