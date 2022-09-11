@@ -18,6 +18,10 @@ fn get_key(file_name: String, timestamp: u64) -> String {
 //获取元信息，返回元组（时间戳，大小）
 fn get_meta(path: String) -> io::Result<(u64, u64)> {
     let file_path = Path::new(&path);
+    if !file_path.exists() {
+        println!("Error:File not exist : {}", &path);
+        Log::error(&format!("Error:File not exist : {}", &path));
+    }
     let meta = fs::metadata(file_path)?;
     let timestamp = meta
         .modified()
@@ -79,13 +83,16 @@ impl Scanner {
         let mut result: HashMap<String, Vec<EptFileNode>> = HashMap::new();
         let mut lazy_delete: Vec<LazyDeleteNode> = vec![];
         let mut _new_hash_map: HashMap<String, String> = HashMap::new();
+        let initial_calc_hash = !Path::new(HASH_MAP_FILE).exists();
 
         //读取分类目录
         Log::info(&format!("Read packages on {}", &path));
         let categories = read_dir(path.clone(), FileType::Dir)?;
         //读取一层子目录
         for category in categories {
-            // Log::info(&format!("Scanning category {}", &category));
+            if initial_calc_hash {
+                println!("Scanning category {}", &category);
+            }
             //分类目录路径
             let sub_path = String::from(
                 Path::new(&path.clone())
@@ -150,11 +157,6 @@ impl Scanner {
                 .collect();
 
             result.insert(category, file_node_collection);
-        }
-
-        match self.integrity.save(HASH_MAP_FILE) {
-            Ok(_) => Log::info("Hash map cache saved"),
-            Err(err) => Log::error(&format!("Can't save hash map {}", err)),
         }
 
         Ok((result, lazy_delete))
@@ -227,5 +229,18 @@ impl Scanner {
             ));
         }
         self.integrity.remove(&key);
+    }
+
+    pub fn save_hash_map(&self) {
+        match self.integrity.save(HASH_MAP_FILE) {
+            Ok(_) => {
+                Log::info("Hash map cache saved");
+                println!("Info:Hash cache bin saved");
+            }
+            Err(err) => {
+                Log::error(&format!("Can't save hash map {}", err));
+                println!("Error:Can't save hash map {}", err);
+            }
+        }
     }
 }

@@ -63,6 +63,10 @@ impl IntegrityCache {
             .inner
             .entry(key.to_string())
             .or_try_insert_with(|| -> Result<Integrity, anyhow::Error> {
+                println!(
+                    "Debug:Calc hash for {:?}",
+                    String::from(path.as_ref().to_string_lossy())
+                );
                 Self::compute(IntegrityMethod::Blake3, path)
             })?
             .value()
@@ -75,7 +79,7 @@ impl IntegrityCache {
 
     pub fn save<P: AsRef<Path>>(&self, path: P) -> anyhow::Result<()> {
         let mut file = File::create(path)?;
-        bincode::serialize_into(&mut file, &self)?;
+        bincode::serialize_into(&mut file, &self.inner)?;
 
         Ok(())
     }

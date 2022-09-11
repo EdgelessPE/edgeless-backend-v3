@@ -75,8 +75,8 @@ impl Daemon {
 
     //执行一次更新
     fn update(&mut self, _clear_hash_map: bool) -> std::io::Result<()> {
-        Log::info("Start updating packages");
-        println!("Info:Start updating packages");
+        Log::info("Start updating");
+        println!("Info:Start updating");
 
         //插件包懒删除
         for node in &self.list_lazy_delete {
@@ -96,8 +96,8 @@ impl Daemon {
         //更新懒删除列表
         self.list_lazy_delete = lazy_delete_list;
 
-        Log::info("Finish updating packages");
-        println!("Info:Finish updating packages");
+        Log::info("Finish updating");
+        println!("Info:Finish updating");
 
         Log::remove_old_logs();
         Log::flush();

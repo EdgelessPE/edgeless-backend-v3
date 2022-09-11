@@ -34,10 +34,6 @@ pub fn get_general_response(
     let mut root = config.mirror.root.clone();
     let services = &config.mirror.services;
 
-    let plugins_service = get_service(services, String::from("plugins")).unwrap();
-    let (plugins_response, lazy_delete_list) =
-        get_plugins_response(scanner, &mut root, plugins_service)?;
-
     let kernel_service = get_service(services, String::from("kernel")).unwrap();
     let kernel_response = get_kernel_response(scanner, &root, kernel_service)?;
 
@@ -49,6 +45,13 @@ pub fn get_general_response(
 
     let alpha_service = get_service(services, String::from("alpha")).unwrap();
     let alpha_response = get_alpha_response(scanner, &root, alpha_service, extended_alpha_config)?;
+
+    //因为配置校验可能无法检查子目录的固定名称文件，因此最后再扫描插件包以便前期发现panic
+    let plugins_service = get_service(services, String::from("plugins")).unwrap();
+    let (plugins_response, lazy_delete_list) =
+        get_plugins_response(scanner, &mut root, plugins_service)?;
+    //保存hash map bin
+    scanner.save_hash_map();
 
     Ok((
         HelloResponse {
