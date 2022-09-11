@@ -16,11 +16,11 @@
 
 - `/api/v3/hello` 镜像站挥手接口
 
-      单次请求即可获取当前镜像站的所有服务信息，减少频繁的网络请求。
+    单次请求即可获取当前镜像站的所有服务信息，减少频繁的网络请求。
 
-      通过 `services` 字段标识此节点提供的所有 Edgeless 服务，然后通过对应字段提供服务信息。
+    通过 `services` 字段标识此节点提供的所有 Edgeless 服务，然后通过对应字段提供服务信息。
 
-      响应示例：
+    响应示例：
 
   ```json
   {
@@ -192,9 +192,9 @@
 
 - `/api/v3/alpha?token={TOKEN}` ept 索引刷新请求接口
 
-      请求时需要携带 Alpha 用户令牌。响应 HTTP 状态码 `400` 时说明请求时未携带 TOKEN 或 TOKEN 无效。
+    请求时需要携带 Alpha 用户令牌。响应 HTTP 状态码 `400` 时说明请求时未携带 TOKEN 或 TOKEN 无效。
 
-      响应示例：
+    响应示例：
 
       ```json
       {
@@ -228,9 +228,9 @@
 
 - `/api/v3/refresh?token={TOKEN}` ept 索引刷新请求接口
 
-      请求时需要携带超级管理员令牌。响应 HTTP 状态码 `400` 时说明请求时未携带 TOKEN 或 TOKEN 无效；响应 HTTP 状态码 `200` 时说明刷新请求已提交到 Daemon 线程，Daemon 会在空闲时调度刷新。
+    请求时需要携带超级管理员令牌。响应 HTTP 状态码 `400` 时说明请求时未携带 TOKEN 或 TOKEN 无效；响应 HTTP 状态码 `200` 时说明刷新请求已提交到 Daemon 线程，Daemon 会在空闲时调度刷新。
 
 ## 运行时产生的文件
 
-- `hash_map.bin` ept 包的 SHA256 缓存，一般不建议删除
+- `hash_map(_METHOD)?.bin` ept 包的 SHA256 缓存，一般不建议删除
 - `default-YYYY-MM-DD.log.toml` 程序运行日志，程序会自动清理 7 天之前的日志，一般不需要手动删除
