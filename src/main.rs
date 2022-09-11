@@ -65,13 +65,13 @@ async fn ept_alpha_handler(info: web::Query<TokenRequiredQueryStruct>) -> HttpRe
     HttpResponse::BadRequest().body("Invalid token")
 }
 
-#[get("/api/v3/ept/refresh")]
+#[get("/api/v3/refresh")]
 async fn ept_refresh_handler(info: web::Query<TokenRequiredQueryStruct>) -> HttpResponse {
     let config_guard = CONFIG.lock().unwrap();
     let config = config_guard.as_ref().unwrap();
     let mut collector_guard = BRIDGE.lock().unwrap();
     let collector = collector_guard.as_mut().unwrap();
-    if info.token == config.token.alpha {
+    if info.token == config.token.super_user {
         collector.update_cache(false);
         return HttpResponse::Ok().body("Requested refresh");
     }
