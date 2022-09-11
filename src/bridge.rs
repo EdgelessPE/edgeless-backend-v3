@@ -49,7 +49,7 @@ impl Bridge {
                 }
             }
         }
-        self.recent_update=SystemTime::now();
+        self.recent_update = SystemTime::now();
     }
 
     fn is_expired(&self) -> bool {

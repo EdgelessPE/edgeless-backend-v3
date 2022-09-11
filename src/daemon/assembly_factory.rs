@@ -1,5 +1,4 @@
-use std::{ops::Add, path::Path};
-
+use super::scanner::Scanner;
 use crate::{
     class::{
         AlphaCover, AlphaCoverJson, AlphaResponse, FileNode, HelloResponse, HubExtendedJson,
@@ -11,9 +10,9 @@ use crate::{
         ALPHA_COVER, HUB_EXTENDED_UPDATE_PACK, HUB_UPDATE_DIR, HUB_UPDATE_PACK, PROTOCOL,
         VENTOY_PLUGIN,
     },
-    scanner::Scanner,
     utils::{get_json, get_service},
 };
+use std::{ops::Add, path::Path};
 
 pub fn get_general_response(
     scanner: &mut Scanner,

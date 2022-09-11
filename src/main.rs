@@ -1,11 +1,8 @@
-mod assembly_factory;
 mod bridge;
 mod class;
 mod config;
 mod constant;
 mod daemon;
-mod integrity;
-mod scanner;
 mod utils;
 
 #[cfg(test)]
@@ -50,7 +47,7 @@ async fn ept_hello_handler() -> HttpResponse {
 async fn ept_alpha_handler(info: web::Query<TokenRequiredQueryStruct>) -> HttpResponse {
     let config_guard = CONFIG.lock().unwrap();
     let config = config_guard.as_ref().unwrap();
-    if info.token==config.token.alpha{
+    if info.token == config.token.alpha {
         return match BRIDGE.lock().unwrap().as_mut().map(|v| v.alpha()) {
             Some(Ok(res)) => HttpResponse::Ok().json(res),
             Some(Err(e)) => {
@@ -63,7 +60,7 @@ async fn ept_alpha_handler(info: web::Query<TokenRequiredQueryStruct>) -> HttpRe
                 Log::flush();
                 HttpResponse::InternalServerError().body("Can't collect alpha response")
             }
-        }
+        };
     }
     HttpResponse::BadRequest().body("Invalid token")
 }

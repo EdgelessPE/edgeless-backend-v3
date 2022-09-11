@@ -9,10 +9,10 @@ mod ventoy;
 
 use serde::{Deserialize, Serialize};
 
+pub use crate::daemon::{Integrity, IntegrityMethod};
 pub use alpha::{AlphaCover, AlphaResponse};
 pub use common::{FileNode, ServiceNodeConfig, ServiceNodePublic};
 pub use external::{AlphaCoverJson, HubExtendedJson};
-pub use crate::integrity::{Integrity, IntegrityMethod};
 pub use hub::{HubLatest, HubNotice, HubPackages, HubResponse, HubUpdate};
 pub use internal::{FileType, LazyDeleteNode, TokenRequiredQueryStruct};
 pub use mirror::MirrorProperty;

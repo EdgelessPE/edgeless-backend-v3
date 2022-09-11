@@ -1,8 +1,8 @@
 use casual_logger::Log;
 
+use super::integrity::IntegrityCache;
 use crate::class::{EptFileNode, FileNode, FileType, LazyDeleteNode};
 use crate::constant::HASH_MAP_FILE;
-use crate::integrity::IntegrityCache;
 use crate::utils::{file_selector, read_dir, version_cmp, version_extractor};
 use std::collections::HashMap;
 use std::ops::Add;

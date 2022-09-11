@@ -1,4 +1,4 @@
-use crate::integrity::Integrity;
+use crate::daemon::Integrity;
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FileNode {

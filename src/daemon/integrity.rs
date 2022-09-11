@@ -34,16 +34,18 @@ pub struct IntegrityCache {
 
 impl Clone for IntegrityCache {
     fn clone(&self) -> Self {
-        Self { inner: self.inner.clone(), guard: RwLock::new(()) }
+        Self {
+            inner: self.inner.clone(),
+            guard: RwLock::new(()),
+        }
     }
 }
 
 impl IntegrityCache {
-
     pub fn empty() -> Self {
         Self {
             inner: DashMap::new(),
-            guard: RwLock::new(())
+            guard: RwLock::new(()),
         }
     }
 
@@ -59,7 +61,10 @@ impl IntegrityCache {
             {
                 println!("Info:Use Integrity Cache File");
                 Log::info("Use Integrity Cache File");
-                Self { inner, guard: RwLock::new(()) }
+                Self {
+                    inner,
+                    guard: RwLock::new(()),
+                }
             } else {
                 println!("Info:Integrity Cache File corrupted, use empty one");
                 Log::warn("Integrity Cache File corrupted, use empty one");
@@ -89,7 +94,6 @@ impl IntegrityCache {
 
         let _guard = self.guard.read().unwrap();
 
-
         let val = self
             .inner
             .entry(key.to_string())
@@ -104,7 +108,6 @@ impl IntegrityCache {
             .clone();
 
         Ok(val)
-
     }
 
     pub fn remove(&mut self, key: &String) -> Option<Integrity> {

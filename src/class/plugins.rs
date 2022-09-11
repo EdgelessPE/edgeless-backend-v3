@@ -1,4 +1,4 @@
-use super::Integrity;
+use crate::daemon::Integrity;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

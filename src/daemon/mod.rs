@@ -1,14 +1,18 @@
+mod assembly_factory;
+mod integrity;
+mod scanner;
+
 use std::sync::mpsc::{Receiver, Sender};
 use std::time::SystemTime;
 
 use casual_logger::Log;
 
-use crate::assembly_factory::get_general_response;
+pub use self::assembly_factory::get_general_response;
+pub use self::integrity::{Integrity, IntegrityCache, IntegrityMethod};
+pub use self::scanner::Scanner;
 use crate::class::{AlphaResponse, HelloResponse, LazyDeleteNode};
 use crate::config::Config;
 use crate::constant::{CALC_HASH_INTERVAL, CMD_REQUEST, SU_REQUEST};
-use crate::integrity::IntegrityCache;
-use crate::scanner::Scanner;
 
 pub struct Daemon {
     timestamp_recent_finish: SystemTime,   //上次扫描结束时的时间戳
