@@ -3,9 +3,11 @@
 全新的完全版本 Edgeless 后端服务器程序。此版本为 Edgeless 服务端的完全实现版本，遵守 `Edgeless Backend Protocol V3` 协议，提供全部的 Edgeless 服务。
 
 ## 安放测试目录
+
 解压 `test.7z` 到项目根目录，然后执行 `cp config.toml.example config.toml`
 
 ## 启动
+
 - 编辑 `config.toml` 然后运行 `cargo run` 进行测试。
 - 若显示`Info:Config validation passed` 则说明已通过配置校验，然后请求 `localhost:8383/api/v3/hello` 查看是否正常响应。
 - 若没有问题即可执行 `cargo build --release` 编译生产环境版本并部署。
@@ -14,17 +16,17 @@
 
 - `/api/v3/hello` 镜像站挥手接口
 
-    单次请求即可获取当前镜像站的所有服务信息，减少频繁的网络请求。
+      单次请求即可获取当前镜像站的所有服务信息，减少频繁的网络请求。
 
-    通过 `services` 字段标识此节点提供的所有 Edgeless 服务，然后通过对应字段提供服务信息。
+      通过 `services` 字段标识此节点提供的所有 Edgeless 服务，然后通过对应字段提供服务信息。
 
-    响应示例：
+      响应示例：
 
   ```json
   {
     "name": "菠萝云",
     "description": "Edgeless 官方主站点",
-    "protocol": "3.0.0",
+    "protocol": "3.1.0",
     "root": "https://pineapple.edgeless.top/",
     "property": {
       "domestic_server": true,
@@ -38,7 +40,7 @@
         "path": "disk/插件包/"
       },
       {
-        "name": "iso",
+        "name": "kernel",
         "path": "disk/Socket/"
       },
       {
@@ -56,49 +58,80 @@
     ],
     "plugins": {
       "tree": {
-        "下载上传": [
+        "安装备份": [
           {
-            "name": "curl_7.84.0.1_undefined（bot）.7z",
-            "size": 5174331,
-            "timestamp": 1656360547,
-            "hash": "afb59d7ed9184bd788b0c5df789329a9558d42e0b9bc4dd1a4198bccd05b9ef8"
+            "name": "DriveSnapShot_1.48_shiftz.7z",
+            "size": 444722,
+            "timestamp": 1628659081,
+            "integrity": {
+              "method": "blake3",
+              "value": "5e40ce441dc6dcb728333b475a719b7b47c1b65c5850f8d26619015b8eebdb70"
+            }
           }
         ],
-        "压缩镜像": [
+        "安全急救": [
           {
-            "name": "7-Zip美化版_21.17.0.0_Horatio Shaw.7z",
-            "size": 3347919,
-            "timestamp": 1643440187,
-            "hash": "f30a5b542e8461883e3e08bc1de1f55eebff724b204b8e7d29c3379bf469d8ad"
+            "name": "360CAD病毒专杀_1.0.0.0_汪凯.7z",
+            "size": 740267,
+            "timestamp": 1587457392,
+            "integrity": {
+              "method": "blake3",
+              "value": "adf4313a13580bb4f9bed1bfad770600b713ef95f5cbaa6fb0f486f01652afbb"
+            }
           }
         ]
       },
-      "path": "disk/插件包/"
+      "path": "https://pineapple.edgeless.top/disk/插件包/"
     },
-    "iso": {
-      "version": "4.10.0",
-      "file_name": "Edgeless_Beta_4.10.0.iso",
-      "url": "https://pineapple.edgeless.top/disk/Socket/Edgeless_Beta_4.10.0.iso"
-    },
-    "alpha": {
-      "wim": {
-        "version": "0.0.0",
-        "file_name": "Edgeless_Alpha_0.0.0.wim",
-        "url": "https://pineapple.edgeless.top/disk/Socket/Alpha/Edgeless_Alpha_0.0.0.wim"
-      },
-      "cover": {
-        "lower_than": "4.1.0",
-        "url": "https://pineapple.edgeless.top/disk/Socket/Alpha/cover.7z"
+    "kernel": {
+      "name": "Edgeless_Beta_4.1.0.iso",
+      "version": "4.1.0",
+      "url": "https://pineapple.edgeless.top/disk/Socket//Edgeless_Beta_4.1.0.iso",
+      "size": 4,
+      "timestamp": 1614539928,
+      "integrity": {
+        "method": "blake3",
+        "value": "865c4e216f723a9c95e689d976c605ba8f6202c6547b21688843771b74daabc9"
       }
     },
     "ventoy": {
-      "version": "1.0.71",
-      "file_name": "ventoy-1.0.71-windows.zip",
-      "url": "https://pineapple.edgeless.top/disk/Socket/Ventoy/ventoy-1.0.71-windows.zip"
+      "windows": {
+        "name": "ventoy-1.0.79-windows.zip",
+        "version": "1.0.79",
+        "url": "https://pineapple.edgeless.top/disk/Socket/Ventoy//ventoy-1.0.79-windows.zip",
+        "size": 4,
+        "timestamp": 1614539928,
+        "integrity": {
+          "method": "blake3",
+          "value": "865c4e216f723a9c95e689d976c605ba8f6202c6547b21688843771b74daabc9"
+        }
+      },
+      "linux": {
+        "name": "ventoy-1.0.79-linux.tar.gz",
+        "version": "1.0.79",
+        "url": "https://pineapple.edgeless.top/disk/Socket/Ventoy//ventoy-1.0.79-linux.tar.gz",
+        "size": 4,
+        "timestamp": 1614539928,
+        "integrity": {
+          "method": "blake3",
+          "value": "865c4e216f723a9c95e689d976c605ba8f6202c6547b21688843771b74daabc9"
+        }
+      },
+      "plugin": {
+        "name": "ventoy_wimboot.img",
+        "version": "0.0.0",
+        "url": "https://pineapple.edgeless.top/disk/Socket/Ventoy/ventoy_wimboot.img",
+        "size": 4,
+        "timestamp": 1614539928,
+        "integrity": {
+          "method": "blake3",
+          "value": "865c4e216f723a9c95e689d976c605ba8f6202c6547b21688843771b74daabc9"
+        }
+      }
     },
     "hub": {
       "latest": {
-        "version": "2.16",
+        "version": "2.27",
         "page": "https://down.edgeless.top/"
       },
       "update": {
@@ -109,39 +142,93 @@
       "notices": [
         {
           "id": "220723",
-          "channel": "Down",
-          "level": "info",
-          "message": "消息标题",
-          "description": "消息内容",
-          "close_text": "我知道了",
-          "lower_than": "0",
-          "repeat_after": 0
-        },
-        {
-          "id": "220723",
           "channel": "Hub",
           "level": "info",
-          "message": "消息标题",
-          "description": "消息内容",
-          "close_text": "不再提示",
+          "message": "通知标题",
+          "description": "通知内容",
+          "close_text": "关闭",
           "lower_than": "2.28",
-          "repeat_after": 30
+          "repeat_after": 3
         }
       ],
       "packages": {
-        "update": "https://pineapple.edgeless.top/disk/Socket/Hub/Update/update.7z",
-        "extended_update": "https://pineapple.edgeless.top/disk/Socket/Hub/Update/extended_update.7z",
-        "full": "https://pineapple.edgeless.top/disk/Socket/Hub/Edgeless Hub_Beta_2.16.7z"
+        "update": {
+          "name": "update.7z",
+          "version": "0.0.0",
+          "url": "https://pineapple.edgeless.top/disk/Socket/Hub/update.7z",
+          "size": 66,
+          "timestamp": 1658507364,
+          "integrity": {
+            "method": "blake3",
+            "value": "7d536353c0a78f6c4c249dddd7d4965b7b493f5c861500002eb91bc20afdb569"
+          }
+        },
+        "extended_update": {
+          "name": "extended_update.7z",
+          "version": "0.0.0",
+          "url": "https://pineapple.edgeless.top/disk/Socket/Hub/extended_update.7z",
+          "size": 66,
+          "timestamp": 1658507364,
+          "integrity": {
+            "method": "blake3",
+            "value": "7d536353c0a78f6c4c249dddd7d4965b7b493f5c861500002eb91bc20afdb569"
+          }
+        },
+        "full": {
+          "name": "Edgeless Hub_Beta_2.27.7z",
+          "version": "2.27",
+          "url": "https://pineapple.edgeless.top/disk/Socket/Hub//Edgeless Hub_Beta_2.27.7z",
+          "size": 1366,
+          "timestamp": 1658512706,
+          "integrity": {
+            "method": "blake3",
+            "value": "d650c3c4ca0b0d2cbd0c6560b95113326e451cb013eb577377d3493f5469ed3f"
+          }
+        }
       }
     }
   }
   ```
 
-- `/api/v3/ept/refresh?token={TOKEN}` ept 索引刷新请求接口
+- `/api/v3/alpha?token={TOKEN}` ept 索引刷新请求接口
 
-  请求时需要携带令牌，分为 Alpha 用户令牌和超级管理员令牌,分别对应 普通刷新调度 和 强制刷新调度。
+      请求时需要携带 Alpha 用户令牌。响应 HTTP 状态码 `400` 时说明请求时未携带 TOKEN 或 TOKEN 无效。
 
-  响应 HTTP 状态码 `400` 时说明请求时未携带 TOKEN 或 TOKEN 无效；响应 HTTP 状态码 `200` 时说明刷新请求已提交到 Daemon 线程，Daemon 会根据令牌的调度策略调度刷新。
+      响应示例：
+
+      ```json
+      {
+        "kernel_wim": {
+          "name": "Edgeless_Alpha_4.1.2.wim",
+          "version": "4.1.2",
+          "url": "disk/Socket/Alpha//Edgeless_Alpha_4.1.2.wim",
+          "size": 4,
+          "timestamp": 1614539928,
+          "integrity": {
+            "method": "blake3",
+            "value": "865c4e216f723a9c95e689d976c605ba8f6202c6547b21688843771b74daabc9"
+          }
+        },
+        "cover": {
+          "lower_than": "4.1.0",
+          "file": {
+            "name": "cover.7z",
+            "version": "0.0.0",
+            "url": "https://pineapple.edgeless.top/disk/Socket/Alpha/cover.7z",
+            "size": 166,
+            "timestamp": 1662883307,
+            "integrity": {
+              "method": "blake3",
+              "value": "5eda7888db0a66ed76af8b159fe6f33e31ff74c0bc1e7459c9c9faf952e1b88d"
+            }
+          }
+        }
+      }
+      ```
+
+- `/api/v3/refresh?token={TOKEN}` ept 索引刷新请求接口
+
+      请求时需要携带超级管理员令牌。响应 HTTP 状态码 `400` 时说明请求时未携带 TOKEN 或 TOKEN 无效；响应 HTTP 状态码 `200` 时说明刷新请求已提交到 Daemon 线程，Daemon 会在空闲时调度刷新。
 
 ## 运行时产生的文件
 
