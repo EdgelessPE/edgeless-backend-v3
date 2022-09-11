@@ -7,7 +7,7 @@ use crate::assembly_factory::get_general_response;
 use crate::class::{AlphaResponse, HelloResponse, LazyDeleteNode};
 use crate::config::Config;
 use crate::constant::{CALC_HASH_INTERVAL, CMD_REQUEST, SU_REQUEST};
-use crate::hash2::IntegrityCache;
+use crate::integrity::IntegrityCache;
 use crate::scanner::Scanner;
 
 pub struct Daemon {

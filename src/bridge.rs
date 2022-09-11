@@ -39,7 +39,7 @@ impl Bridge {
             if let Ok((hello_res, alpha_res)) = try_receive {
                 self.hello_response = Some(hello_res);
                 self.alpha_response = Some(alpha_res);
-                println!("Cache updated");
+                println!("Info:Cache updated");
                 if block {
                     break;
                 }
@@ -49,6 +49,7 @@ impl Bridge {
                 }
             }
         }
+        self.recent_update=SystemTime::now();
     }
 
     fn is_expired(&self) -> bool {

@@ -50,18 +50,18 @@ impl IntegrityCache {
     pub fn new() -> Self {
         let cache_path = Path::new(HASH_MAP_FILE);
         if !cache_path.exists() {
-            println!("Use empty one");
+            println!("Info:Use empty hash map");
             Self::empty()
         } else {
             let mut file = File::open(&cache_path).unwrap();
             if let Ok(inner) =
                 bincode::deserialize_from::<&mut File, IntegrityCacheInner>(&mut file)
             {
-                println!("Use Integrity Cache File");
+                println!("Info:Use Integrity Cache File");
                 Log::info("Use Integrity Cache File");
                 Self { inner, guard: RwLock::new(()) }
             } else {
-                println!("Integrity Cache File corrupted, use empty one");
+                println!("Info:Integrity Cache File corrupted, use empty one");
                 Log::warn("Integrity Cache File corrupted, use empty one");
                 Self::empty()
             }
@@ -75,7 +75,7 @@ impl IntegrityCache {
         }
     }
 
-    pub fn replace(&mut self, k: IntegrityCacheInner) {
+    pub fn _replace(&mut self, k: IntegrityCacheInner) {
         let _guard = self.guard.write().unwrap();
         self.inner = k;
     }
@@ -197,7 +197,7 @@ mod tests {
         let integrity = cache.query("one", "./test.7z")?;
 
         println!("{:#?}", cache);
-        cache.replace(DashMap::new());
+        cache._replace(DashMap::new());
         println!("{:#?}", cache);
 
         println!("{:#?}", integrity);
