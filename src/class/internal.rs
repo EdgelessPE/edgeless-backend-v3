@@ -10,7 +10,6 @@ pub struct TokenRequiredQueryStruct {
     pub token: String,
 }
 
-
 #[derive(PartialEq)]
 pub enum FileType {
     Dir,

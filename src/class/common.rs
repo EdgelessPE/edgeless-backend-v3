@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use super::hash::Integrity;
+use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FileNode {
     pub name: String,

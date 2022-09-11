@@ -8,7 +8,8 @@ use crate::{
     },
     config::{Config, ExtendedConfig},
     constant::{
-        ALPHA_COVER, HUB_EXTENDED_UPDATE_PACK, HUB_UPDATE_DIR, HUB_UPDATE_PACK, VENTOY_PLUGIN, PROTOCOL,
+        ALPHA_COVER, HUB_EXTENDED_UPDATE_PACK, HUB_UPDATE_DIR, HUB_UPDATE_PACK, PROTOCOL,
+        VENTOY_PLUGIN,
     },
     scanner::Scanner,
     utils::{get_json, get_service},
@@ -17,7 +18,7 @@ use crate::{
 pub fn get_general_response(
     scanner: &mut Scanner,
     config: &Config,
-) -> Result<(HelloResponse,AlphaResponse,Vec<LazyDeleteNode>), anyhow::Error> {
+) -> Result<(HelloResponse, AlphaResponse, Vec<LazyDeleteNode>), anyhow::Error> {
     let pub_services: Vec<ServiceNodePublic> = config
         .mirror
         .services
@@ -46,21 +47,25 @@ pub fn get_general_response(
     let hub_service = get_service(services, String::from("hub")).unwrap();
     let hub_response = get_hub_response(scanner, &root, hub_service, hub_extended, notices)?;
 
-    let alpha_service=get_service(services, String::from("alpha")).unwrap();
-    let alpha_response=get_alpha_response(scanner, &root, alpha_service, extended_alpha_config)?;
+    let alpha_service = get_service(services, String::from("alpha")).unwrap();
+    let alpha_response = get_alpha_response(scanner, &root, alpha_service, extended_alpha_config)?;
 
-    Ok((HelloResponse {
-        name: config.mirror.name.clone(),
-        description: config.mirror.description.clone(),
-        protocol: String::from(PROTOCOL),
-        root:root.to_owned(),
-        property: config.property.clone(),
-        services: pub_services,
-        plugins: plugins_response,
-        kernel: kernel_response,
-        ventoy: ventoy_response,
-        hub: hub_response,
-    },alpha_response,lazy_delete_list))
+    Ok((
+        HelloResponse {
+            name: config.mirror.name.clone(),
+            description: config.mirror.description.clone(),
+            protocol: String::from(PROTOCOL),
+            root: root.to_owned(),
+            property: config.property.clone(),
+            services: pub_services,
+            plugins: plugins_response,
+            kernel: kernel_response,
+            ventoy: ventoy_response,
+            hub: hub_response,
+        },
+        alpha_response,
+        lazy_delete_list,
+    ))
 }
 
 fn parse_extended_jsons(
@@ -177,8 +182,12 @@ fn get_hub_response(
             .to_string_lossy(),
     );
 
-    let file_node_hub =
-        scanner.scan_file_node(path_local, path_url.clone(), String::from("^Edgeless Hub.*7z$"), 2)?;
+    let file_node_hub = scanner.scan_file_node(
+        path_local,
+        path_url.clone(),
+        String::from("^Edgeless Hub.*7z$"),
+        2,
+    )?;
     let file_node_update = scanner.get_file_node(
         String::from(HUB_UPDATE_PACK),
         path_update.clone(),

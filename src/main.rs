@@ -1,12 +1,12 @@
+mod assembly_factory;
+mod bridge;
 mod class;
 mod config;
 mod constant;
 mod daemon;
+mod hash2;
 mod scanner;
 mod utils;
-mod hash2;
-mod assembly_factory;
-mod bridge;
 // mod daemon2;
 
 #[cfg(test)]
@@ -14,7 +14,10 @@ mod test;
 
 use std::{sync::mpsc::channel, thread::spawn};
 
-use crate::{config::{read_config, Config}, bridge::Bridge};
+use crate::{
+    bridge::Bridge,
+    config::{read_config, Config},
+};
 use actix_web::{get, middleware, web, App, HttpResponse, HttpServer};
 use casual_logger::{Log, Opt};
 use class::TokenRequiredQueryStruct;
@@ -83,19 +86,11 @@ async fn main() -> std::io::Result<()> {
 
     let (result_sender, result_receiver) = channel();
     let (cmd_sender, cmd_receiver) = channel();
-    let mut daemon = daemon::Daemon::new(
-        cmd_receiver,
-        result_sender,
-        cfg.clone(),
-    );
+    let mut daemon = daemon::Daemon::new(cmd_receiver, result_sender, cfg.clone());
 
     // 初始化全局变量
-    *(BRIDGE.lock().unwrap()) = Some(Bridge::new(
-        result_receiver,
-        cmd_sender,
-    ));
+    *(BRIDGE.lock().unwrap()) = Some(Bridge::new(result_receiver, cmd_sender));
     *(CONFIG.lock().unwrap()) = Some(cfg);
-
 
     //启动 daemon 服务
     spawn(move || {

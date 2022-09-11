@@ -1,5 +1,5 @@
+use super::FileNode;
 use serde::{Deserialize, Serialize};
-use super::{FileNode};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct HubResponse {
     pub latest: HubLatest,

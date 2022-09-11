@@ -1,14 +1,14 @@
 use casual_logger::Log;
 
-use crate::class::{EptFileNode, FileNode, FileType, Integrity,IntegrityMethod, LazyDeleteNode};
+use crate::class::{EptFileNode, FileNode, FileType, Integrity, IntegrityMethod, LazyDeleteNode};
+use crate::constant::HASH_MAP_FILE;
+use crate::hash2::IntegrityCache;
 use crate::utils::{file_selector, read_dir, version_cmp, version_extractor};
+use rayon::prelude::*;
 use std::collections::HashMap;
 use std::ops::Add;
 use std::time::SystemTime;
 use std::{fs, io, path::Path};
-use crate::hash2::IntegrityCache;
-use rayon::prelude::*;
-use crate::constant::HASH_MAP_FILE;
 
 //获取用于哈希服务索引的key
 fn get_key(file_name: String, timestamp: u64) -> String {
@@ -67,7 +67,9 @@ pub struct Scanner {
 
 impl Scanner {
     pub fn new(integrity: IntegrityCache) -> Self {
-        Scanner { integrity: Box::new(integrity) }
+        Scanner {
+            integrity: Box::new(integrity),
+        }
     }
 
     pub fn scan_packages(
@@ -130,9 +132,7 @@ impl Scanner {
             let file_node_collection: Vec<EptFileNode> = collection
                 .into_iter()
                 .par_bridge()
-                .map_with(
-                    self.integrity.to_owned(),
-                |integrity, file| {
+                .map_with(self.integrity.to_owned(), |integrity, file| {
                     let file_path =
                         String::from(Path::new(&sub_path).join(&file).to_string_lossy());
                     let (timestamp, size) = get_meta(file_path.clone()).unwrap();
@@ -144,7 +144,7 @@ impl Scanner {
                         name: file,
                         size,
                         timestamp,
-                        integrity
+                        integrity,
                     }
                 })
                 .collect();
@@ -189,16 +189,16 @@ impl Scanner {
 
     pub fn get_file_node(
         &self,
-        file_name:String,
+        file_name: String,
         path_local: String,
         path_url: String,
-    )->Result<FileNode,io::Error>{
+    ) -> Result<FileNode, io::Error> {
         let file_path = String::from(Path::new(&path_local).join(&file_name).to_string_lossy());
         let (timestamp, size) = get_meta(file_path.clone())?;
-        let url=String::from(Path::new(&path_url).join(&file_name).to_string_lossy());
+        let url = String::from(Path::new(&path_url).join(&file_name).to_string_lossy());
         Ok(FileNode {
-            name:file_name,
-            version:String::from("0.0.0"),
+            name: file_name,
+            version: String::from("0.0.0"),
             url,
             size,
             timestamp,
@@ -207,7 +207,6 @@ impl Scanner {
                 value: String::new(),
             },
         })
-
     }
 
     pub fn delete_file(&mut self, path: String, key: String) {

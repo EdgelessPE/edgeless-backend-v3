@@ -1,6 +1,6 @@
+use super::Integrity;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use super::Integrity;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct PluginsResponse {
@@ -8,11 +8,10 @@ pub struct PluginsResponse {
     pub path: String,
 }
 
-
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EptFileNode {
     pub name: String,
     pub size: u64,
     pub timestamp: u64,
-    pub integrity: Integrity
+    pub integrity: Integrity,
 }
