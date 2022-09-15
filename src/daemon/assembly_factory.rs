@@ -126,7 +126,7 @@ fn get_alpha_response(
     )?;
     let kernel_wim_file_node = scanner.scan_file_node(
         path_local,
-        alpha_service.path,
+        root.clone().add(&alpha_service.path),
         String::from("^Edgeless.*wim$"),
         2,
     )?;

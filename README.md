@@ -86,7 +86,7 @@
     "kernel": {
       "name": "Edgeless_Beta_4.1.0.iso",
       "version": "4.1.0",
-      "url": "https://pineapple.edgeless.top/disk/Socket//Edgeless_Beta_4.1.0.iso",
+      "url": "https://pineapple.edgeless.top/disk/Socket/Edgeless_Beta_4.1.0.iso",
       "size": 4,
       "timestamp": 1614539928,
       "integrity": {
@@ -98,7 +98,7 @@
       "windows": {
         "name": "ventoy-1.0.79-windows.zip",
         "version": "1.0.79",
-        "url": "https://pineapple.edgeless.top/disk/Socket/Ventoy//ventoy-1.0.79-windows.zip",
+        "url": "https://pineapple.edgeless.top/disk/Socket/Ventoy/ventoy-1.0.79-windows.zip",
         "size": 4,
         "timestamp": 1614539928,
         "integrity": {
@@ -109,7 +109,7 @@
       "linux": {
         "name": "ventoy-1.0.79-linux.tar.gz",
         "version": "1.0.79",
-        "url": "https://pineapple.edgeless.top/disk/Socket/Ventoy//ventoy-1.0.79-linux.tar.gz",
+        "url": "https://pineapple.edgeless.top/disk/Socket/Ventoy/ventoy-1.0.79-linux.tar.gz",
         "size": 4,
         "timestamp": 1614539928,
         "integrity": {
@@ -177,7 +177,7 @@
         "full": {
           "name": "Edgeless Hub_Beta_2.27.7z",
           "version": "2.27",
-          "url": "https://pineapple.edgeless.top/disk/Socket/Hub//Edgeless Hub_Beta_2.27.7z",
+          "url": "https://pineapple.edgeless.top/disk/Socket/Hub/Edgeless Hub_Beta_2.27.7z",
           "size": 1366,
           "timestamp": 1658512706,
           "integrity": {
@@ -201,7 +201,7 @@
         "kernel_wim": {
           "name": "Edgeless_Alpha_4.1.2.wim",
           "version": "4.1.2",
-          "url": "disk/Socket/Alpha//Edgeless_Alpha_4.1.2.wim",
+          "url": "https://pineapple.edgeless.top/disk/Socket/Alpha/Edgeless_Alpha_4.1.2.wim",
           "size": 4,
           "timestamp": 1614539928,
           "integrity": {
