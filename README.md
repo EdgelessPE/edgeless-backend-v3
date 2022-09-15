@@ -190,7 +190,7 @@
   }
   ```
 
-- `/api/v3/alpha?token={TOKEN}` ept 索引刷新请求接口
+- `/api/v3/alpha?token={TOKEN}` Alpha 内测信息获取接口
 
     请求时需要携带 Alpha 用户令牌。响应 HTTP 状态码 `400` 时说明请求时未携带 TOKEN 或 TOKEN 无效。
 
@@ -226,7 +226,7 @@
       }
       ```
 
-- `/api/v3/refresh?token={TOKEN}` ept 索引刷新请求接口
+- `/api/v3/refresh?token={TOKEN}` 缓存刷新请求接口
 
     请求时需要携带超级管理员令牌。响应 HTTP 状态码 `400` 时说明请求时未携带 TOKEN 或 TOKEN 无效；响应 HTTP 状态码 `200` 时说明刷新请求已提交到 Daemon 线程，Daemon 会在空闲时调度刷新。
 
