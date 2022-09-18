@@ -176,7 +176,7 @@ impl Scanner {
         let key = get_key(name.clone(), timestamp);
         let integrity = self.integrity.query(key, file_path.clone())?;
 
-        let url = path_url.add("/").add(&name);
+        let url = path_url.add(&name);
         Ok(FileNode {
             name,
             version,
@@ -195,7 +195,7 @@ impl Scanner {
     ) -> anyhow::Result<FileNode> {
         let file_path = String::from(Path::new(&path_local).join(&file_name).to_string_lossy());
         let (timestamp, size) = get_meta(file_path.clone())?;
-        let url = String::from(Path::new(&path_url).join(&file_name).to_string_lossy());
+        let url = path_url.add(&file_name);
 
         let key = get_key(file_name.clone(), timestamp);
         let integrity = self.integrity.query(key, file_path.clone())?;

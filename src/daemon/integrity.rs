@@ -98,10 +98,10 @@ impl IntegrityCache {
             .inner
             .entry(key.to_string())
             .or_try_insert_with(|| -> Result<Integrity, anyhow::Error> {
-                println!(
-                    "Debug:Calc hash for {:?}",
-                    String::from(path.as_ref().to_string_lossy())
-                );
+                // println!(
+                //     "Debug:Calc hash for {:?}",
+                //     String::from(path.as_ref().to_string_lossy())
+                // );
                 Self::compute(IntegrityMethod::Blake3, path)
             })?
             .value()
