@@ -14,7 +14,7 @@ pub fn valid(config: &Config) -> Result<(), i32> {
         let (test_regex, version_index): (&str, i32) = match service_name {
             "plugins" => ("[^\\w]+", 0),
             "kernel" => ("^Edgeless.*iso$", 2),
-            "alpha" => ("^Edgeless.*wim$", 2),
+            // "alpha" => ("^Edgeless.*wim$", 2),
             "ventoy" => ("^ventoy-.*-windows.zip$", 1),
             "hub" => ("^Edgeless Hub.*7z$", 2),
             _ => ("\\S+", -1),
@@ -39,16 +39,16 @@ pub fn valid(config: &Config) -> Result<(), i32> {
                 errors_count += 1;
                 println!("Error:Invalid service {} : can't find sub directories in given local path : {}",service_name,e);
             }
-        } else {
-            errors_count += 1;
-            println!("Error:Unknown service {}", service_name);
-        }
+        } else if service_name!="alpha"{
+                errors_count += 1;
+                println!("Error:Unknown service {}", service_name);
+            }
     }
 
     //检查外部 json 是否有效
-    let hub: Result<HubExtendedJson, String> = get_json(config.config.hub.to_owned());
-    let notice: Result<Vec<HubNotice>, String> = get_json(config.config.hub_notices.to_owned());
-    let extended_alpha_config: Result<AlphaCoverJson, String> =
+    let hub: anyhow::Result<HubExtendedJson> = get_json(config.config.hub.to_owned());
+    let notice: anyhow::Result<Vec<HubNotice>> = get_json(config.config.hub_notices.to_owned());
+    let extended_alpha_config: anyhow::Result<AlphaCoverJson> =
         get_json(config.config.alpha_cover.clone());
 
     if let Err(e) = hub {

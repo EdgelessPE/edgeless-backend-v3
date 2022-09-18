@@ -73,7 +73,7 @@ pub fn get_general_response(
 
 fn parse_extended_jsons(
     extended_config: ExtendedConfig,
-) -> Result<(HubExtendedJson, Vec<HubNotice>, AlphaCoverJson), String> {
+) -> anyhow::Result<(HubExtendedJson, Vec<HubNotice>, AlphaCoverJson)> {
     let hub: HubExtendedJson = get_json(extended_config.hub)?;
     let notice: Vec<HubNotice> = get_json(extended_config.hub_notices)?;
     let extended_alpha_config: AlphaCoverJson = get_json(extended_config.alpha_cover)?;
@@ -85,7 +85,7 @@ fn get_plugins_response(
     scanner: &mut Scanner,
     root: &mut String,
     plugins_service: ServiceNodeConfig,
-) -> Result<(PluginsResponse, Vec<LazyDeleteNode>), anyhow::Error> {
+) -> anyhow::Result<(PluginsResponse, Vec<LazyDeleteNode>)> {
     let (tree, lazy_delete_list) = scanner.scan_packages(plugins_service.local.clone())?;
 
     Ok((
@@ -119,25 +119,33 @@ fn get_alpha_response(
     extended_alpha_config: AlphaCoverJson,
 ) -> Result<AlphaResponse, anyhow::Error> {
     let path_local = String::from(Path::new(&alpha_service.local).to_string_lossy());
-    let cover_file_node = scanner.get_file_node(
+    let cover_file_node_res = scanner.get_file_node(
         String::from(ALPHA_COVER),
         path_local.clone(),
         root.clone().add(&alpha_service.path),
-    )?;
-    let kernel_wim_file_node = scanner.scan_file_node(
+    );
+    let kernel_wim_file_node_res = scanner.scan_file_node(
         path_local,
         alpha_service.path,
         String::from("^Edgeless.*wim$"),
         2,
-    )?;
+    );
 
-    Ok(AlphaResponse {
-        kernel_wim: kernel_wim_file_node,
-        cover: AlphaCover {
+    let cover = if cover_file_node_res.is_ok() {
+        Some(AlphaCover {
             lower_than: extended_alpha_config.lower_than,
-            file: cover_file_node,
-        },
-    })
+            file: cover_file_node_res.unwrap(),
+        })
+    } else {
+        None
+    };
+    let kernel_wim = if kernel_wim_file_node_res.is_ok() {
+        Some(kernel_wim_file_node_res.unwrap())
+    } else {
+        None
+    };
+
+    Ok(AlphaResponse { kernel_wim, cover })
 }
 
 fn get_ventoy_response(

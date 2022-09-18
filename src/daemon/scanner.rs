@@ -18,8 +18,8 @@ fn get_key(file_name: String, timestamp: u64) -> String {
 fn get_meta(path: String) -> io::Result<(u64, u64)> {
     let file_path = Path::new(&path);
     if !file_path.exists() {
-        println!("Error:File not exist : {}", &path);
-        Log::error(&format!("Error:File not exist : {}", &path));
+        println!("Warning:File not exist : {}", &path);
+        Log::warn(&format!("Warning:File not exist : {}", &path));
     }
     let meta = fs::metadata(file_path)?;
     let timestamp = meta
@@ -167,8 +167,8 @@ impl Scanner {
         regex: String,
         version_index: usize,
     ) -> anyhow::Result<FileNode> {
-        let name = file_selector(path_local.clone(), regex, version_index).unwrap();
-        let version = version_extractor(name.clone(), version_index).unwrap();
+        let name = file_selector(path_local.clone(), regex, version_index)?;
+        let version = version_extractor(name.clone(), version_index)?;
 
         let file_path = String::from(Path::new(&path_local).join(&name).to_string_lossy());
         let (timestamp, size) = get_meta(file_path.clone())?;

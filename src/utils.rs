@@ -8,24 +8,25 @@ use std::{
     fs,
     path::Path,
 };
+use anyhow::anyhow;
 
-pub fn get_json<T>(path: String) -> Result<T, String>
+pub fn get_json<T>(path: String) -> anyhow::Result<T>
 where
     T: serde::de::DeserializeOwned,
 {
     let text_res = fs::read_to_string(&path);
     if let Err(e) = text_res {
-        return Err(format!("Can't read file {} to string : {}", &path, e));
+        return Err(anyhow!("Can't read file {} to string : {}", &path, e));
     }
     let text = &text_res.unwrap();
     let parse_res: serde_json::Result<T> = serde_json::from_str(text);
     if let Err(e) = parse_res {
-        return Err(format!("Can't parse file {} as json : {}", &path, e));
+        return Err(anyhow!("Can't parse file {} as json : {}", &path, e));
     }
     Ok(parse_res.unwrap())
 }
 
-// TODO:增加缓存
+
 pub fn get_service(services: &Vec<ServiceNodeConfig>, name: String) -> Option<ServiceNodeConfig> {
     for service in services.clone().into_iter() {
         if service.name == name {
@@ -35,23 +36,23 @@ pub fn get_service(services: &Vec<ServiceNodeConfig>, name: String) -> Option<Se
     None
 }
 //文件选择器函数
-pub fn file_selector(path: String, exp: String, version_index: usize) -> Result<String, String> {
+pub fn file_selector(path: String, exp: String, version_index: usize) -> anyhow::Result<String> {
     //校验路径是否存在
     if !Path::new(&path).exists() {
-        return Err(String::from("file_selector:Can't find ") + &path);
+        return Err(anyhow!("file_selector:Can't find {}",&path));
     }
 
     //校验正则表达式是否有效
     let expression = Regex::new(&exp);
     if let Err(_) = expression {
-        return Err(String::from("file_selector:Invalid expression: ") + &exp);
+        return Err(anyhow!("file_selector:Invalid expression: {}",&exp));
     }
     let regex = expression.unwrap();
 
     //列出文件列表
     let file_list = fs::read_dir(&path);
     if let Err(_) = file_list {
-        return Err(String::from("file_selector:Can't read as directory: ") + &path);
+        return Err(anyhow!("file_selector:Can't read as directory: {}",&path));
     }
 
     //遍历匹配文件名
@@ -88,17 +89,12 @@ pub fn file_selector(path: String, exp: String, version_index: usize) -> Result<
     return if valid_data {
         Ok(result)
     } else {
-        Err(
-            String::from("file_selector:Matched nothing when looking into ")
-                + &path
-                + " for "
-                + &exp,
-        )
+        return Err(anyhow!("file_selector:Matched nothing when looking into {} for {}",&path,&exp))
     };
 }
 
 //版本号提取器函数
-pub fn version_extractor(name: String, index: usize) -> Result<String, String> {
+pub fn version_extractor(name: String, index: usize) -> anyhow::Result<String> {
     //首次切割，获取拓展名的值及其长度
     let mut ext_name = "";
     let mut ext_len = 0;
@@ -113,12 +109,7 @@ pub fn version_extractor(name: String, index: usize) -> Result<String, String> {
     result.push(ext_name);
 
     if index > result.len() {
-        return Err(
-            String::from("version_extractor:Index out of range when split ")
-                + &name
-                + ",got "
-                + &index.to_string(),
-        );
+        return Err(anyhow!("version_extractor:Index out of range when split {},got {}",&name,&index.to_string()));
     }
     //println!("{:?}",result);
     return Ok(result[index].to_string());
@@ -152,7 +143,7 @@ pub fn version_cmp(a: &Vec<u32>, b: &Vec<u32>) -> Ordering {
     Ordering::Equal
 }
 
-pub fn read_dir(path: String, filter: FileType) -> Result<Vec<String>, io::Error> {
+pub fn read_dir(path: String, filter: FileType) -> io::Result<Vec<String>> {
     let p = Path::new(&path);
     if !p.exists() {
         Log::error(&format!("Path {} not exist!", &path));
