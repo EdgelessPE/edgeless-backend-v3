@@ -196,35 +196,35 @@
 
     响应示例：
 
-      ```json
-      {
-        "kernel_wim": {
-          "name": "Edgeless_Alpha_4.1.2.wim",
-          "version": "4.1.2",
-          "url": "https://pineapple.edgeless.top/disk/Socket/Alpha/Edgeless_Alpha_4.1.2.wim",
-          "size": 4,
-          "timestamp": 1614539928,
-          "integrity": {
-            "method": "blake3",
-            "value": "865c4e216f723a9c95e689d976c605ba8f6202c6547b21688843771b74daabc9"
-          }
-        },
-        "cover": {
-          "lower_than": "4.1.0",
-          "file": {
-            "name": "cover.7z",
-            "version": "0.0.0",
-            "url": "https://pineapple.edgeless.top/disk/Socket/Alpha/cover.7z",
-            "size": 166,
-            "timestamp": 1662883307,
-            "integrity": {
-              "method": "blake3",
-              "value": "5eda7888db0a66ed76af8b159fe6f33e31ff74c0bc1e7459c9c9faf952e1b88d"
-            }
-          }
-        }
+```json
+{
+  "kernel_wim": {
+    "name": "Edgeless_Alpha_4.1.2.wim",
+    "version": "4.1.2",
+    "url": "https://pineapple.edgeless.top/disk/Socket/Alpha/Edgeless_Alpha_4.1.2.wim",
+    "size": 4,
+    "timestamp": 1614539928,
+    "integrity": {
+      "method": "blake3",
+      "value": "865c4e216f723a9c95e689d976c605ba8f6202c6547b21688843771b74daabc9"
+    }
+  },
+  "cover": {
+    "lower_than": "4.1.0",
+    "file": {
+      "name": "cover.7z",
+      "version": "0.0.0",
+      "url": "https://pineapple.edgeless.top/disk/Socket/Alpha/cover.7z",
+      "size": 166,
+      "timestamp": 1662883307,
+      "integrity": {
+        "method": "blake3",
+        "value": "5eda7888db0a66ed76af8b159fe6f33e31ff74c0bc1e7459c9c9faf952e1b88d"
       }
-      ```
+    }
+  }
+}
+```
 
 - `/api/v3/refresh?token={TOKEN}` 缓存刷新请求接口
 
